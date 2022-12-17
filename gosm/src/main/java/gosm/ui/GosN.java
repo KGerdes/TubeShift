@@ -3,6 +3,7 @@ package gosm.ui;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -10,25 +11,29 @@ import javafx.stage.Stage;
 
 public class GosN extends Application {
 
-	private Pane gameBox;
+	private BorderPane mainPane;
 	private GameGrid gameGrid;
+	private MenuPane menu;
+	private BottomControls controls;
 	
 	@Override
     public void start(Stage stage) {
-		gameBox = new Pane();
-		
-		gameBox.setStyle("-fx-background-color: #ffffff;");
+		menu = new MenuPane();
+		controls = new BottomControls();
+		mainPane = new BorderPane();
+		mainPane.setStyle("-fx-background-color: #ffffff;");
 		gameGrid = new GameGrid();
-		gameBox.getChildren().add(gameGrid);
-		gameGrid.setVisible(true);
-        Scene scene = new Scene(gameBox, 800, 600);
-        stage.setTitle("Game of simple Numbers");
+		mainPane.setCenter(gameGrid);
+		mainPane.setTop(menu);
+		mainPane.setBottom(controls);
+        Scene scene = new Scene(mainPane, 800, 600);
+        stage.setTitle("TubeShift");
         stage.setScene(scene);
         stage.show();
     }
-
+ 
     public static void main(String[] args) {
-        launch();
+        launch(); //
     }
 
 }
