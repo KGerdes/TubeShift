@@ -25,6 +25,13 @@ public class Game {
 		check();
 	}
 	
+	/**
+	 * 
+	 * @param name
+	 * @param width
+	 * @param height
+	 * @param data
+	 */
 	public Game(String name, int width, int height, int[][] data) {
 		this(name, width, height, false, data);
 	}
@@ -63,5 +70,23 @@ public class Game {
 		int w = 6;
 		int[][] data = new int[w][w - 1];
 		return new Game("Leer", w, w - 1, true, data);
+	}
+
+	public int getItem(int col, int row) {
+		return data[col][row];
+	}
+
+	public Game dup() {
+		int[][] tdata = new int[width][height];
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				tdata[x][y] = data[x][y];
+			}
+		}
+		return new Game(getName(), width, height, isEmpty(), tdata);
+	}
+	
+	public String toString() {
+		return name;
 	}
 }

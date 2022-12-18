@@ -3,6 +3,7 @@ package gosm.ui;
 import java.util.Date;
 import java.util.Random;
 
+import gosm.backend.Game;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -13,28 +14,32 @@ import javafx.scene.layout.Pane;
 
 public class GameGrid extends Pane {
 
+	private static final int IMAGE_OFFSET = 60;
 	private Canvas canvas;
+	private GameImage editable;
+	private GameImage fixed;
 	
 	public GameGrid() {
-		setStyle(UIConstants.STD_TEST_COLOR);
-		/*
-		Canvas canvas = new Canvas(1200, 500);
-		GraphicsContext gcg = canvas.getGraphicsContext2D();
-		gcg.fillRect(0, 0, 1200, 500);
-		for (int i=0;i<16;i++) {
-			gcg.drawImage(UIConstants.bitmaps.getImage(i), i * 74,100);
-		}
-		
-		getChildren().add(canvas);
-		
-		setOnMouseClicked(e -> {
-			GraphicsContext gc = canvas.getGraphicsContext2D();
-			System.out.println("clicked");
-			Random r = new Random(new Date().getTime());
-			for (int i=0;i<16;i++) {
-				gc.drawImage(UIConstants.bitmaps.getImage(r.nextInt(16)), i * 74,100);
-			}
-		});
-		*/
+		setStyle(UIConstants.STD_PANE_COLOR);
+		editable = new GameImage();
+		fixed = new GameImage();
+		getChildren().add(editable);
+		getChildren().add(fixed);
+		activateGame(UIConstants.gameManager.getSelected());
+	}
+
+	private void activateGame(Game selected) {
+		editable.setGame(selected.dup());
+		fixed.setGame(selected);
+		editable.setLayoutX(IMAGE_OFFSET);
+		editable.setLayoutY(IMAGE_OFFSET);
+		fixed.setLayoutX(IMAGE_OFFSET * 2 + editable.getWidth());
+		fixed.setLayoutY(IMAGE_OFFSET);
+		setWidth(fixed.getWidth() + fixed.getLayoutX() + IMAGE_OFFSET);
+		setHeight(editable.getHeight() + IMAGE_OFFSET * 2);
+	}
+	
+	public double getCalculatedHeight() {
+		return editable.getLayoutY() * 2 + editable.getHeight();
 	}
 }
