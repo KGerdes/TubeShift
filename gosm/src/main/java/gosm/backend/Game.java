@@ -6,7 +6,7 @@ import java.util.Random;
 public class Game {
 
 	public static final int MIN_WIDTH = 4;
-	public static final int MAX_WIDTH = 8;
+	public static final int MAX_WIDTH = 10;
 	
 	private final String name;
 	private final int width;
@@ -73,6 +73,11 @@ public class Game {
 		int w = 6;
 		int[][] data = new int[w - 1][w];
 		return new Game("Leer", w, w - 1, true, data);
+	}
+	
+	public static Game createBlankGame(int width, int height) {
+		int[][] data = new int[width][height];
+		return new Game("", width, height, false, data);
 	}
 
 	public int getItem(int col, int row) {
@@ -156,5 +161,9 @@ public class Game {
 
 	public String toString() {
 		return name;
+	}
+
+	public void setData(int col, int row, int index) {
+		data[row][col] = index;
 	}
 }
