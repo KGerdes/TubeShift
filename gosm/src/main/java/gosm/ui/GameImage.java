@@ -38,13 +38,17 @@ public class GameImage extends Pane {
 		return game.getHeight() * Bitmapper.BMP_WIDTH + 2;
 	}
 	
-	private void drawGame() {
+	public void drawGame() {
 		GraphicsContext gcg = canvas.getGraphicsContext2D();
 		gcg.fillRect(0, 0, getWidth(), getHeight());
-		for (int row=0;row < game.getHeight();row++) {
-			for (int col=0;col < game.getWidth();col++) {
-				gcg.drawImage(UIConstants.bitmaps.getImage(game.getItem(col, row)), 1+ col * Bitmapper.BMP_WIDTH, 1 + row * Bitmapper.BMP_WIDTH);
+		for (int col=0;col < game.getWidth();col++) {
+			for (int row=0;row < game.getHeight();row++) {
+				gcg.drawImage(UIConstants.bitmaps.getImage(game.getItem(col, row)), 1 + col * Bitmapper.BMP_WIDTH, 1 + row * Bitmapper.BMP_WIDTH);
 			}
 		}
+	}
+	
+	public void redraw() {
+		drawGame();
 	}
 }

@@ -28,14 +28,14 @@ public class GameManager {
 	}
 	
 	public boolean addGame(String name, int width, int height, String dataStr) {
-		int[][] data = new int[width][height];
+		int[][] data = new int[height][width];
 		String[] v = dataStr.split(",");
 		if (v.length != width * height) {
 			throw new IllegalArgumentException("invalid array length");
 		}
 		int index = 0;
-		for (int x=0;x<width;x++) {
-			for (int y=0;y<height;y++) {
+		for (int y=0;y<height;y++) {
+			for (int x=0;x<width;x++) {
 				int key = 0;
 				if (v[index].indexOf('t') >= 0) {
 					key |= 1;
@@ -49,7 +49,7 @@ public class GameManager {
 				if (v[index].indexOf('l') >= 0) {
 					key |= 8;
 				}
-				data[x][y] = key;
+				data[y][x] = key;
 				index++;
 			}
 		}

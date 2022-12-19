@@ -25,17 +25,18 @@ public class Bitmapper {
 	public Image getImage(int index) {
 		return image[index];
 	}
+	
 
 	private Image createImage(int i) {
 		int halfmin = BMP_WIDTH / 2 - TUBE_RADIUS;
-		int halfmax = BMP_WIDTH / 2 + TUBE_RADIUS;
 		WritableImage wi = new WritableImage(BMP_WIDTH,BMP_WIDTH);
 		
 		Canvas canvas = new Canvas(BMP_WIDTH, BMP_WIDTH);
 		final GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.setFill(Color.gray(0.8));
+		gc.setStroke(Color.gray(0.90));
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		
+		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);
 		if ((i & 1) != 0) {
 			gc.fillRect(halfmin, 0, TUBE_RADIUS * 2, BMP_WIDTH / 2);
 		}

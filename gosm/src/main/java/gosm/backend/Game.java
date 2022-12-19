@@ -1,5 +1,8 @@
 package gosm.backend;
 
+import java.util.Date;
+import java.util.Random;
+
 public class Game {
 
 	public static final int MIN_WIDTH = 4;
@@ -58,34 +61,99 @@ public class Game {
 		if (width < MIN_WIDTH || width > MAX_WIDTH || height < MIN_WIDTH || height > MAX_WIDTH) {
 			throw new IllegalArgumentException("Wrong width/height arguments in game");
 		}
-		if (height != data[0].length) {
+		if (height != data.length) {
 			throw new IllegalArgumentException("array does not fit height");
 		}
-		if (width != data.length) {
+		if (width != data[0].length) {
 			throw new IllegalArgumentException("array does not fit width");
 		}
 	}
 
 	public static Game emptyGame() {
 		int w = 6;
-		int[][] data = new int[w][w - 1];
+		int[][] data = new int[w - 1][w];
 		return new Game("Leer", w, w - 1, true, data);
 	}
 
 	public int getItem(int col, int row) {
-		return data[col][row];
+		return data[row][col];
 	}
 
 	public Game dup() {
-		int[][] tdata = new int[width][height];
+		int[][] tdata = new int[height][width];
 		for (int x=0;x<width;x++) {
 			for (int y=0;y<height;y++) {
-				tdata[x][y] = data[x][y];
+				tdata[y][x] = data[y][x];
 			}
 		}
 		return new Game(getName(), width, height, isEmpty(), tdata);
 	}
 	
+	public Game mixit() {
+		Random r = new Random(new Date().getTime());
+		for (int i=0;i<200;i++) {
+			if (i % 2 != 0) {
+				shiftRow(r.nextInt(height), r.nextInt(2) == 1);
+			} else {
+				shiftColumn(r.nextInt(width), r.nextInt(2) == 1);
+			}
+		}
+		return this;
+	}
+	
+	public void shiftRow(int row, boolean up) {
+		int store;
+		if (!up) {
+			int offset = width - 1;
+			for (int i=0;i<width - 1;i++) {
+				store = data[row][i];
+				data[row][i] = data[row][offset % width];
+				data[row][offset % width] = store;
+				offset++;
+			}
+		} else {
+			int offset = width;
+			for (int i=width-1;i>0;i--) {
+				store = data[row][i];
+				data[row][i] = data[row][offset % width];
+				data[row][offset % width] = store;
+				offset--;
+			}
+		}
+	}
+	
+	public void shiftColumn(int col, boolean up) {
+		int store;
+		if (!up) {
+			int offset = height - 1;
+			for (int i=0;i<height - 1;i++) {
+				store = data[i][col];
+				data[i][col] = data[offset % height][col];
+				data[offset % height][col] = store;
+				offset++;
+			}
+		} else {
+			int offset = height;
+			for (int i=height-1;i>0;i--) {
+				store = data[i][col];
+				data[i][col] = data[offset % height][col];
+				data[offset % height][col] = store;
+				offset--;
+			}
+		}
+	}
+	
+	public boolean isFinished(Game comp) {
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				if (data[y][x] != comp.data[y][x]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public String toString() {
 		return name;
 	}
