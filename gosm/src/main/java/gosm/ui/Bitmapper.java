@@ -33,7 +33,7 @@ public class Bitmapper {
 		
 		Canvas canvas = new Canvas(BMP_WIDTH, BMP_WIDTH);
 		final GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.setFill(Color.gray(0.8));
+		gc.setFill(Color.gray(0.6));
 		gc.setStroke(Color.gray(0.90));
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);

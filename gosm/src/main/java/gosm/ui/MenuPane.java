@@ -7,9 +7,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class MenuPane extends HBox {
 
@@ -31,10 +35,13 @@ public class MenuPane extends HBox {
 			distribute.restartGame();
 		});
 		stop = new Button("Aufgeben");
+		
 		stop.setOnMouseClicked(e -> {
 			distribute.stopGame();
 		});
+		Region r = new Region();
 		newGame = new Button("Neues Spiel");
+		newGame.setAlignment(Pos.CENTER_RIGHT);
 		newGame.setOnMouseClicked(e -> {
 			if (editor != null) {
 				editor.createNewGame();
@@ -52,7 +59,8 @@ public class MenuPane extends HBox {
 				distribute.startNewGame((Game) selectedGame);
 			}
 		});
-		this.getChildren().addAll(gameSelect, start, stop, newGame);
+		this.setHgrow(r, Priority.ALWAYS);
+		this.getChildren().addAll(gameSelect, start, stop, r, newGame);
 		setRunningState(false);
 	}
 

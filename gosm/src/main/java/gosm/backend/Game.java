@@ -2,12 +2,14 @@ package gosm.backend;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 public class Game {
 
 	public static final int MIN_WIDTH = 4;
 	public static final int MAX_WIDTH = 10;
 	
+	private final String key;
 	private final String name;
 	private final int width;
 	private final int height;
@@ -19,6 +21,14 @@ public class Game {
 	 * 
 	 */
 	public Game(String name, int width, int height, boolean empty, int[][] data) {
+		this(UUID.randomUUID().toString(), name, width, height, empty, data);
+	}
+	
+	/*
+	 * 
+	 */
+	public Game(String uuid, String name, int width, int height, boolean empty, int[][] data) {
+		this.key = uuid;
 		this.name = name;
 		this.width = width;
 		this.height = height;
@@ -39,7 +49,9 @@ public class Game {
 		this(name, width, height, false, data);
 	}
 	
-	
+	public String getKey() {
+		return key;
+	}
 	
 	public String getName() {
 		return name;
@@ -166,6 +178,10 @@ public class Game {
 	public void setData(int col, int row, int index) {
 		data[row][col] = index;
 	}
+	
+	public int getData(int col, int row) {
+		return data[row][col];
+	}
 
 	public Game resize(int w, int h) {
 		int[][] tdata = new int[h][w];
@@ -177,6 +193,7 @@ public class Game {
 			}
 		}
 		return new Game(getName(), w, h, isEmpty(), tdata);
-		
 	}
+
+	
 }

@@ -14,17 +14,23 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -40,6 +46,7 @@ public class GameEditor extends BorderPane {
 	private ComboBox<Integer> widthText;
 	private ComboBox<Integer> heightText;
 	private GridPane grid;
+	private Button   close, save;
 	private List<ImageView> dragList = new ArrayList<>();
 	
 	protected GameEditor() {
@@ -58,9 +65,20 @@ public class GameEditor extends BorderPane {
 	private void createInterieur() {
 		gameImage = new GameImage();
 		gameImage.setGame(Game.createBlankGame(8,8));
-		this.setCenter(gameImage);
+		gameImage.setOnMouseClicked(me -> {
+			int row = (int)(me.getY() - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
+			int col = (int)(me.getX() - gameImage.getLayoutX()) / Bitmapper.BMP_WIDTH;
+			if (me.getButton().equals(MouseButton.PRIMARY)) {
+				scrollField(row, col, +1);
+			} else {
+				if (me.getButton().equals(MouseButton.SECONDARY)) {
+					scrollField(row, col, -1);
+				}
+			}
+		});
+		this.setLeft(gameImage);
 		controls = new VBox();
-		controls.setPadding(new Insets(16));
+		controls.setPadding(new Insets(0,0,0,16));
 		controls.setSpacing(12);
 		AtomicReference<TextField> ar = new AtomicReference<>();
 		VBox tmp = createText(ar, "Name", "");
@@ -131,7 +149,38 @@ public class GameEditor extends BorderPane {
 			e.consume();
 		});
 		controls.getChildren().add(grid);
+		Region r = new Region();
+		HBox btns = new HBox();
+		btns.setSpacing(12);
+		close = new Button("Schließen");
+		close.setOnMouseClicked(e -> { 
+			closeEditor(); 
+		});
+		save  = new Button("Speichern");
+		save.setOnMouseClicked(e -> {
+			save();
+		});
+		btns.getChildren().addAll(close, save);
+		controls.getChildren().add(r);
+		controls.getChildren().add(btns);
+		btns.setAlignment(Pos.BOTTOM_RIGHT);
 		this.setRight(controls);
+		controls.setVgrow(r, Priority.ALWAYS);
+	}
+	
+	private void scrollField(int row, int col, int toAdd) {
+		int index = gameImage.getGame().getData(col, row);
+		index = (index + Bitmapper.BMP_COUNT + toAdd) % Bitmapper.BMP_COUNT;
+		gameImage.getGame().setData(col, row, index);
+		gameImage.drawGame();
+	}
+
+	private void save() {
+		
+	}
+	
+	private void closeEditor() {
+		stage.close();
 	}
 	
 	protected void resizeEditGame(int width, int height) {
@@ -158,13 +207,14 @@ public class GameEditor extends BorderPane {
 	private VBox createCombo(AtomicReference<ComboBox<Integer>> combo, String caption, ObservableList<Integer> values) {
 		VBox res = new VBox();
 		res.setSpacing(4);
-		combo.set(new ComboBox(values));
+		combo.set(new ComboBox<>(values));
 		combo.get().setMinWidth(80);
 		res.getChildren().addAll(new Text(caption), combo.get());
 		return res;
 	}
 
 	public GameEditor createNewGame() {
+		nameText.setText(gameImage.getGame().getName());
 		widthText.setValue(gameImage.getGame().getWidth());
 		heightText.setValue(gameImage.getGame().getHeight());
 		stage.show();

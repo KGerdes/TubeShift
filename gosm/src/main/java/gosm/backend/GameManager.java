@@ -1,18 +1,20 @@
 package gosm.backend;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GameManager {
 
-	private Set<Game> games = new HashSet<>();
+	private Map<String, Game> games = new HashMap<>();
 	private Game selected = null;
 	
 	public GameManager() {
 		selected = Game.emptyGame();
-		games.add(selected);
+		games.put(selected.getKey(), selected);
 	}
 	
 	public Game getSelected() {
@@ -20,7 +22,7 @@ public class GameManager {
 	}
 	
 	public void setSelected(Game game) {
-		if (games.contains(game)) {
+		if (games.containsKey(game.getKey())) {
 			selected = game;
 		} else {
 			throw new IllegalArgumentException("game not in list");
@@ -53,12 +55,13 @@ public class GameManager {
 				index++;
 			}
 		}
-		games.add(new Game(name, width, height, false, data));
+		Game g = new Game(name, width, height, false, data);
+		games.put(g.getKey(), g);
 		return true;
 	}
 	
 	public List<Game> getGames() {
-		return games.stream().filter(g -> !g.isEmpty()).sorted((g1, g2) -> {
+		return games.values().stream().filter(g -> !g.isEmpty()).sorted((g1, g2) -> {
 			return g1.getName().compareTo(g2.getName());
 		}).collect(Collectors.toList());
 	}
