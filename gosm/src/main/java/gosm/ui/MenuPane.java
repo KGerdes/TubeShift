@@ -30,6 +30,10 @@ public class MenuPane extends HBox {
 		start.setOnMouseClicked(e -> {
 			distribute.restartGame();
 		});
+		stop = new Button("Aufgeben");
+		stop.setOnMouseClicked(e -> {
+			distribute.stopGame();
+		});
 		newGame = new Button("Neues Spiel");
 		newGame.setOnMouseClicked(e -> {
 			if (editor != null) {
@@ -48,7 +52,7 @@ public class MenuPane extends HBox {
 				distribute.startNewGame((Game) selectedGame);
 			}
 		});
-		this.getChildren().addAll(gameSelect, start, newGame);
+		this.getChildren().addAll(gameSelect, start, stop, newGame);
 		setRunningState(false);
 	}
 
@@ -61,5 +65,7 @@ public class MenuPane extends HBox {
 	public void setRunningState(boolean running) {
 		gameSelect.disableProperty().set(running);
 		start.disableProperty().set(running);
+		newGame.disableProperty().set(running);
+		stop.disableProperty().set(!running);
 	}
 }

@@ -9,6 +9,8 @@ import gosm.backend.Game;
 import gosm.ui.Bitmapper;
 import gosm.ui.GameImage;
 import gosm.ui.UIConstants;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -56,7 +58,7 @@ public class GameEditor extends BorderPane {
 	private void createInterieur() {
 		gameImage = new GameImage();
 		gameImage.setGame(Game.createBlankGame(8,8));
-		this.setCenter(gameImage);;
+		this.setCenter(gameImage);
 		controls = new VBox();
 		controls.setPadding(new Insets(16));
 		controls.setSpacing(12);
@@ -71,9 +73,23 @@ public class GameEditor extends BorderPane {
 		AtomicReference<ComboBox<Integer>> arcb = new AtomicReference<>();
 		tmp = createCombo(arcb, "Breite", values);
 		widthText = arcb.get();
+		widthText.valueProperty().addListener(new ChangeListener<Object>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedInt) {
+				resizeEditGame((Integer)selectedInt, gameImage.getGame().getHeight());
+			}
+		});
 		controls.getChildren().add(tmp);
 		tmp = createCombo(arcb, "Höhe", values);
 		heightText = arcb.get();
+		heightText.valueProperty().addListener(new ChangeListener<Object>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedInt) {
+				resizeEditGame(gameImage.getGame().getWidth(), (Integer)selectedInt);
+			}
+		});
 		controls.getChildren().add(tmp);
 		grid = new GridPane();
 		grid.setStyle("-fx-border-color: black;-fx-border-width: 1px;");
@@ -118,6 +134,12 @@ public class GameEditor extends BorderPane {
 		this.setRight(controls);
 	}
 	
+	protected void resizeEditGame(int width, int height) {
+		Game g = gameImage.getGame().resize(width, height);
+		gameImage.setGame(g);
+		scene.getWindow().sizeToScene();
+	}
+
 	private void handleDrop(double sceneX, double sceneY, int index) {
 		int col = (int)(sceneX - gameImage.getLayoutX()) / Bitmapper.BMP_WIDTH;
 		int row = (int)(sceneY - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
@@ -143,6 +165,8 @@ public class GameEditor extends BorderPane {
 	}
 
 	public GameEditor createNewGame() {
+		widthText.setValue(gameImage.getGame().getWidth());
+		heightText.setValue(gameImage.getGame().getHeight());
 		stage.show();
 		return this;
 	}

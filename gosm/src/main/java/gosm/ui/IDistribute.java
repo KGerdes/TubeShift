@@ -11,4 +11,6 @@ public interface IDistribute {
 	public void setGameState(boolean running);
 	
 	public boolean isRunning();
+
+	public void stopGame();
 }

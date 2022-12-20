@@ -166,4 +166,17 @@ public class Game {
 	public void setData(int col, int row, int index) {
 		data[row][col] = index;
 	}
+
+	public Game resize(int w, int h) {
+		int[][] tdata = new int[h][w];
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				if (x < w && x < width && y < h && y < height) {
+					tdata[y][x] = data[y][x];
+				}
+			}
+		}
+		return new Game(getName(), w, h, isEmpty(), tdata);
+		
+	}
 }

@@ -23,6 +23,8 @@ public class GameImage extends Pane {
 		this.setHeight(getHeightInPx());
 		canvas.setWidth(getWidth());
 		canvas.setHeight(getHeight());
+		this.setMinSize(getWidthInPx(), getHeightInPx());
+		this.setMaxSize(getWidthInPx(), getHeightInPx());
 		drawGame();
 	}
 	

@@ -84,4 +84,9 @@ public class GosN extends Application implements IDistribute {
 		return controls.isRunning();
 	}
 
+	@Override
+	public void stopGame() {
+		setGameState(false);
+	}
+
 }
