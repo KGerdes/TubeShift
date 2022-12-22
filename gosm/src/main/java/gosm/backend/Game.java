@@ -1,7 +1,11 @@
 package gosm.backend;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 public class Game {
@@ -10,7 +14,7 @@ public class Game {
 	public static final int MAX_WIDTH = 10;
 	
 	private final String key;
-	private final String name;
+	private String name;
 	private final int width;
 	private final int height;
 	private final boolean empty;
@@ -55,6 +59,10 @@ public class Game {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public int getWidth() {
@@ -192,8 +200,33 @@ public class Game {
 				}
 			}
 		}
-		return new Game(getName(), w, h, isEmpty(), tdata);
+		return new Game(getKey(), getName(), w, h, isEmpty(), tdata);
 	}
 
-	
+	public Game duplicate() {
+		int[][] tdata = new int[height][width];
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				tdata[y][x] = data[y][x];
+			}
+		}
+		return new Game(key,name,width,height,empty,tdata);
+	}
+
+	public long getComplexity() {
+		Map<Integer, Integer> tst = new HashMap<>();
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				int count = tst.containsKey(data[y][x]) ? tst.get(data[y][x]) + 1 : 1;
+				tst.put(data[y][x], count);
+			}
+		}
+		int max = 0;
+		for (Integer i : tst.values()) {
+			max = Math.max(max, i);
+		}
+		
+		return (width * height / max) * (tst.size() - 1);
+	}
+
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import gosm.backend.Game;
 import gosm.ui.Bitmapper;
 import gosm.ui.GameImage;
+import gosm.ui.IDistribute;
 import gosm.ui.UIConstants;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,6 +39,7 @@ import javafx.stage.Stage;
 
 public class GameEditor extends BorderPane {
 	
+	private IDistribute distribute;
 	private Stage stage;
 	private Scene scene;
 	private GameImage gameImage;
@@ -49,8 +51,9 @@ public class GameEditor extends BorderPane {
 	private Button   close, save;
 	private List<ImageView> dragList = new ArrayList<>();
 	
-	protected GameEditor() {
+	public GameEditor(IDistribute distribute) {
 		super();
+		this.distribute = distribute;
 		stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
 		scene = new Scene(this);
@@ -158,14 +161,17 @@ public class GameEditor extends BorderPane {
 		});
 		save  = new Button("Speichern");
 		save.setOnMouseClicked(e -> {
-			save();
+			gameImage.getGame().setName(nameText.getText());
+			UIConstants.gameManager.saveGame(gameImage.getGame());
+			distribute.gameChanged(gameImage.getGame());
+			closeEditor();
 		});
 		btns.getChildren().addAll(close, save);
 		controls.getChildren().add(r);
 		controls.getChildren().add(btns);
 		btns.setAlignment(Pos.BOTTOM_RIGHT);
 		this.setRight(controls);
-		controls.setVgrow(r, Priority.ALWAYS);
+		VBox.setVgrow(r, Priority.ALWAYS);
 	}
 	
 	private void scrollField(int row, int col, int toAdd) {
@@ -173,10 +179,6 @@ public class GameEditor extends BorderPane {
 		index = (index + Bitmapper.BMP_COUNT + toAdd) % Bitmapper.BMP_COUNT;
 		gameImage.getGame().setData(col, row, index);
 		gameImage.drawGame();
-	}
-
-	private void save() {
-		
 	}
 	
 	private void closeEditor() {
@@ -212,19 +214,25 @@ public class GameEditor extends BorderPane {
 		res.getChildren().addAll(new Text(caption), combo.get());
 		return res;
 	}
-
-	public GameEditor createNewGame() {
+	
+	private void setAttribs() {
 		nameText.setText(gameImage.getGame().getName());
 		widthText.setValue(gameImage.getGame().getWidth());
 		heightText.setValue(gameImage.getGame().getHeight());
+	}
+
+	public GameEditor createNewGame() {
+		gameImage.setGame(Game.createBlankGame(6,6));
+		setAttribs();
 		stage.show();
 		return this;
 	}
 	
-	
-	public static GameEditor newGame() {
-		GameEditor edit = new GameEditor();
-		return edit.createNewGame();
+	public void editGame(Game selected) {
+		gameImage.setGame(selected.duplicate());
+		resizeEditGame(selected.getWidth(), selected.getHeight());
+		setAttribs();
+		stage.show();
 	}
 
 }

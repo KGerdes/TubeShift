@@ -9,5 +9,5 @@ public class UIConstants {
 	public static final String STD_PANE_COLOR = "-fx-background-color: #ffffff;";
 	public static final String STD_TEST_COLOR = "-fx-background-color: #234567;";
 	public static Bitmapper bitmaps = new Bitmapper();
-	public static GameManager gameManager = new GameManager();
+	public static GameManager gameManager = null;
 }

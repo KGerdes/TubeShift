@@ -22,6 +22,7 @@ public class MenuPane extends HBox {
 	private Button start;
 	private Button stop;
 	private Button newGame;
+	private Button editGame;
 	private GameEditor editor;
 	
 	public MenuPane(IDistribute distribute) {
@@ -43,11 +44,18 @@ public class MenuPane extends HBox {
 		newGame = new Button("Neues Spiel");
 		newGame.setAlignment(Pos.CENTER_RIGHT);
 		newGame.setOnMouseClicked(e -> {
-			if (editor != null) {
-				editor.createNewGame();
-			} else {
-				editor = GameEditor.newGame();
+			if (editor == null) {
+				editor = new GameEditor(distribute);
 			}
+			editor.createNewGame();
+		});
+		editGame = new Button("Bearbeiten");
+		editGame.setAlignment(Pos.CENTER_RIGHT);
+		editGame.setOnMouseClicked(e -> {
+			if (editor == null) {
+				editor = new GameEditor(distribute);
+			}
+			editor.editGame(UIConstants.gameManager.getSelected());
 		});
 		gameSelect = new ComboBox<Game>();
 		gameSelect.setMinWidth(160);
@@ -56,11 +64,14 @@ public class MenuPane extends HBox {
 
 			@Override
 			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedGame) {
-				distribute.startNewGame((Game) selectedGame);
+				if (selectedGame != null) {
+					UIConstants.gameManager.setSelected((Game)selectedGame);
+					distribute.startNewGame((Game) selectedGame);
+				}
 			}
 		});
-		this.setHgrow(r, Priority.ALWAYS);
-		this.getChildren().addAll(gameSelect, start, stop, r, newGame);
+		HBox.setHgrow(r, Priority.ALWAYS);
+		this.getChildren().addAll(gameSelect, start, stop, r, newGame, editGame);
 		setRunningState(false);
 	}
 
@@ -75,5 +86,11 @@ public class MenuPane extends HBox {
 		start.disableProperty().set(running);
 		newGame.disableProperty().set(running);
 		stop.disableProperty().set(!running);
+	}
+
+	public void reloadGameList() {
+		gameSelect.getItems().clear();
+		gameSelect.getItems().addAll(UIConstants.gameManager.getGames());
+		
 	}
 }

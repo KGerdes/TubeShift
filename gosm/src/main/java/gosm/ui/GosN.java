@@ -1,6 +1,9 @@
 package gosm.ui;
 
+import java.io.File;
+
 import gosm.backend.Game;
+import gosm.backend.GameManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -12,6 +15,8 @@ import javafx.stage.Stage;
 
 public class GosN extends Application implements IDistribute {
 
+	private static String[] systemArgs;
+	private String workingDir;
 	private Scene scene;
 	private BorderPane mainPane;
 	private GameGrid gameGrid;
@@ -21,6 +26,8 @@ public class GosN extends Application implements IDistribute {
 	
 	@Override
     public void start(Stage stage) {
+		UIConstants.gameManager = new GameManager(this);
+		initWorkingDir(systemArgs);
 		addGames();
 		menu = new MenuPane(this);
 		controls = new BottomControls(this);
@@ -47,16 +54,12 @@ public class GosN extends Application implements IDistribute {
 	}
 	
 	private void addGames() {
-		UIConstants.gameManager.addGame("Rechteck", 4, 4, "br,lr,lr,bl, tb,-,-,tb, tb,-,-,tb, tr,lr,lr,lt");
-		UIConstants.gameManager.addGame("Rechteck2", 5, 4, "br,lr,lr,lr,bl, tb,-,-,-,tb, tb,-,-,-,tb, tr,lr,lr,lr,lt");
+		UIConstants.gameManager.loadGames(workingDir);
 	}
  
-    public static void main(String[] args) {
-        launch();
-    }
-
 	@Override
 	public void startNewGame(Game game) {
+		controls.gameSet(game);
 		gameGrid.activateGame(game, false);
 		resize();
 	}
@@ -64,7 +67,6 @@ public class GosN extends Application implements IDistribute {
 	@Override
 	public void restartGame() {
 		gameGrid.activateGame(gameGrid.getSelectedGame(), true);
-		
 	}
 
 	@Override
@@ -72,11 +74,10 @@ public class GosN extends Application implements IDistribute {
 		this.running = running;
 		menu.setRunningState(running);
 		if (running) {
-			controls.startGame();
+			controls.startGame(gameGrid.getSelectedGame());
 		} else {
 			controls.finishGame();
 		}
-		
 	}
 
 	@Override
@@ -88,5 +89,56 @@ public class GosN extends Application implements IDistribute {
 	public void stopGame() {
 		setGameState(false);
 	}
+	
+	@Override
+	public void gameChanged(Game game) {
+		menu.reloadGameList();
+	}
+	
+	@Override
+	public String getWorkingFile(String name) {
+		if (name == null) {
+			return workingDir;
+		}
+		return workingDir + File.separator + name;
+	}
+	
+	@Override
+	public void gridChanged() {
+		controls.gridStep();
+		
+	}
+	
+	private void initWorkingDir(String[] args) {
+		boolean found = false;
+		String dir = System.getProperty("user.home") + File.separator + "tubeshift";
+		for (String arg : args) {
+			if (arg.equals("-dir")) {
+				found = true;
+			} else {
+				if (found) {
+					dir = arg;
+					break;
+				}
+			}
+		}
+		int len = dir.length();
+		File f = new File(dir);
+		if (dir.charAt(len - 1) == '\\' || dir.charAt(len - 1) == '/') {
+			dir = dir.substring(0,len-1);
+		}
+				
+		if (!f.isDirectory()) {
+			throw new IllegalArgumentException("Working directory not found, please create directory : " + dir);
+		}
+		
+		workingDir = dir;
+	}
+
+	
+    public static void main(String[] args) {
+    	systemArgs = args;
+        launch();
+    }
 
 }

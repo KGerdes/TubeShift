@@ -13,4 +13,10 @@ public interface IDistribute {
 	public boolean isRunning();
 
 	public void stopGame();
+
+	public void gameChanged(Game game);
+
+	public String getWorkingFile(String string);
+
+	public void gridChanged();
 }

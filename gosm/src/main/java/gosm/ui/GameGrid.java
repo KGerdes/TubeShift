@@ -55,6 +55,9 @@ public class GameGrid extends Pane {
 		setHeight(editable.getHeight() + IMAGE_OFFSET * 2);
 		paintButtons();
 		distribute.setGameState(mixit);
+		if (fixed.getGame().isFinished(editable.getGame())) {
+			distribute.setGameState(false);
+		}
 	}
 	
 	private void paintButtons() {
@@ -96,8 +99,10 @@ public class GameGrid extends Pane {
 			if (distribute.isRunning()) {
 				if (row != null) {
 					editable.getGame().shiftRow(row, up);
+					distribute.gridChanged();
 				} else {
 					editable.getGame().shiftColumn(col, up);
+					distribute.gridChanged();
 				}
 				editable.redraw();
 				if (fixed.getGame().isFinished(editable.getGame())) {
