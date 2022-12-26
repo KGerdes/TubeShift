@@ -17,6 +17,7 @@ import javafx.scene.layout.Region;
 
 public class MenuPane extends HBox {
 
+	private static final String GAME_UUID = "game-uuid";
 	private IDistribute    distribute;
 	private ComboBox<Game> gameSelect;
 	private Button start;
@@ -65,8 +66,10 @@ public class MenuPane extends HBox {
 			@Override
 			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedGame) {
 				if (selectedGame != null) {
-					UIConstants.gameManager.setSelected((Game)selectedGame);
-					distribute.startNewGame((Game) selectedGame);
+					Game selgame = (Game)selectedGame;
+					UIConstants.gameManager.setSelected(selgame);
+					distribute.startNewGame(selgame);
+					distribute.setProp(GAME_UUID, selgame.getKey());
 				}
 			}
 		});
@@ -86,6 +89,7 @@ public class MenuPane extends HBox {
 		start.disableProperty().set(running);
 		newGame.disableProperty().set(running);
 		stop.disableProperty().set(!running);
+		editGame.disableProperty().set(running);
 	}
 
 	public void reloadGameList() {
@@ -93,4 +97,15 @@ public class MenuPane extends HBox {
 		gameSelect.getItems().addAll(UIConstants.gameManager.getGames());
 		
 	}
+
+	public void showPropGame() {
+		String guuid = distribute.getProp(GAME_UUID);
+		if (guuid != null) {
+			Game g = UIConstants.gameManager.getGameByUUID(guuid);
+			if (g != null) {
+				gameSelect.setValue(g);
+			}
+		}
+	}
+	
 }

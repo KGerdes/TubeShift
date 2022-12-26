@@ -19,4 +19,8 @@ public interface IDistribute {
 	public String getWorkingFile(String string);
 
 	public void gridChanged();
+
+	public String getProp(String string);
+
+	public void setProp(String string, String newValue);
 }

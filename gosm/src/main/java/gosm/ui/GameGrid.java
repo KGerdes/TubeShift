@@ -105,7 +105,7 @@ public class GameGrid extends Pane {
 					distribute.gridChanged();
 				}
 				editable.redraw();
-				if (fixed.getGame().isFinished(editable.getGame())) {
+				if (isGameFinished()) {
 					distribute.setGameState(false);
 				}
 			}
@@ -119,5 +119,9 @@ public class GameGrid extends Pane {
 	
 	public double getCalculatedHeight() {
 		return editable.getLayoutY() * 2 + editable.getHeight();
+	}
+
+	public boolean isGameFinished() {
+		return fixed.getGame().isFinished(editable.getGame());
 	}
 }

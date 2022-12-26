@@ -4,6 +4,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import gosm.backend.Game;
+import gosm.backend.HighScoreEntry;
+import gosm.ui.score.HighScoreDialog;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,11 +13,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 public class BottomControls extends HBox {
 	
+	private static final String PROP_GAMERNAME = "name";
 	private static final int LHEIGHT = 26;
 	private Timer timer;
 	private IDistribute distribute;
@@ -24,6 +29,7 @@ public class BottomControls extends HBox {
 	private Label lblTime;
 	private Label lblPoints;
 	private Label lblCompl;
+	private Button hscoreBtn;
 	private boolean running = false;
 	private int steps = 0;
 	private long startMs = 0;
@@ -40,6 +46,11 @@ public class BottomControls extends HBox {
 		tmp.setAlignment(Pos.CENTER_LEFT);
 		gamerName = new TextField();
 		gamerName.setPromptText("Spieler");
+		gamerName.setText(distribute.getProp(PROP_GAMERNAME));
+		gamerName.textProperty().addListener((observable, oldValue, newValue) -> {
+			System.out.println("Text changed: " + newValue);
+			distribute.setProp(PROP_GAMERNAME, newValue);
+		});
 		Label tmp2 = new Label("Steps :");
 		tmp2.setMinHeight(LHEIGHT);
 		tmp2.setAlignment(Pos.CENTER_LEFT);
@@ -68,7 +79,13 @@ public class BottomControls extends HBox {
 		lblCompl.setAlignment(Pos.CENTER_LEFT);
 		lblCompl.minWidth(80);
 		lblCompl.setMinHeight(LHEIGHT);
-		getChildren().addAll(tmp, gamerName, tmp2, lblSteps, tmp3, lblTime, tmp4, lblPoints, tmp5, lblCompl);
+		Region reg = new Region();
+		HBox.setHgrow(reg, Priority.ALWAYS);
+		hscoreBtn = new Button("Highscore");
+		hscoreBtn.setOnMouseClicked(e -> {
+			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), null);
+		});
+		getChildren().addAll(tmp, gamerName, tmp2, lblSteps, tmp3, lblTime, tmp4, lblPoints, tmp5, lblCompl, reg, hscoreBtn);
 		initTimer();
 	}
 
@@ -81,7 +98,17 @@ public class BottomControls extends HBox {
 	}
 
 	public void finishGame() {
+		points = calculatePoints();
+		if (running && points > 0) {
+			long tm = (System.currentTimeMillis() - startMs) / 1000;
+			HighScoreEntry hsr = new HighScoreEntry(gamerName.getText(), points, steps, tm);
+			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), hsr);
+		}
 		running = false;
+	}
+	
+	public void stopGame() {
+		
 	}
 	
 	public void initTimer() {
@@ -102,10 +129,10 @@ public class BottomControls extends HBox {
 				long tm = (System.currentTimeMillis() - startMs) / 1000;
     			lblSteps.setText(String.valueOf(steps));
     			lblTime.setText(String.format("%02d:%02d:%02d", tm / 3600, (tm / 60) % 60, tm % 60));
-    			points = complexity * 150 - steps * 5 - tm;
+    			points = calculatePoints();
     			if (points <= 0) {
-    				points = 0;
     				distribute.stopGame();
+    				points = 0;
     			}
     			lblPoints.setText(String.valueOf(points));
     		} else {
@@ -116,10 +143,18 @@ public class BottomControls extends HBox {
 			lblCompl.setText(String.valueOf(complexity));
 		});
 	}
+	
+	private long calculatePoints() {
+		if (running) {
+			long tm = (System.currentTimeMillis() - startMs) / 1000;
+			return complexity * 6 - steps * 10 - tm;
+		} else {
+			return 0;
+		}
+	}
 
 	public void closeApplication() {
 		timer.cancel();
-		
 	}
 
 	public boolean isRunning() {

@@ -1,15 +1,20 @@
 package gosm.backend;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Game {
 
+	public static final int SCORE_MAX = 20;
 	public static final int MIN_WIDTH = 4;
 	public static final int MAX_WIDTH = 10;
 	
@@ -20,6 +25,7 @@ public class Game {
 	private final boolean empty;
 	
 	private final int[][] data;
+	private List<HighScoreEntry> highscore = new ArrayList<>();
 	
 	/*
 	 * 
@@ -225,8 +231,54 @@ public class Game {
 		for (Integer i : tst.values()) {
 			max = Math.max(max, i);
 		}
-		
-		return (width * height / max) * (tst.size() - 1);
+		double v = (width * height / max) * (tst.size() - 1);
+		return Math.round(Math.sqrt(v) * 93.7);
+	}
+
+	public List<HighScoreEntry> getHighScore() {
+		List<HighScoreEntry> tmp = highscore.stream()
+				.sorted((h1, h2) -> {
+					return (int)(h2.getPoints() - h1.getPoints());
+				})
+				.collect(Collectors.toList());
+		int rang = 1;
+		for (HighScoreEntry hse : tmp) {
+			hse.setRang(rang++);
+		}
+		return tmp;
+	}
+	
+	public static void addHighScore(List<HighScoreEntry> list, HighScoreEntry highScoreEntry) {
+		if (highScoreEntry != null) {
+			list.add(highScoreEntry);
+		}
+		Collections.sort(list, (h1, h2) -> {
+			return (int)(h2.getPoints() - h1.getPoints());
+		});
+		int rang = 1;
+		for (HighScoreEntry hse : list) {
+			hse.setRang(rang++);
+		}
+		while (list.size() > SCORE_MAX) {
+			list.remove(SCORE_MAX);
+		}
+	}
+
+	public void addHighScore(HighScoreEntry highScoreEntry) {
+		addHighScore(highscore, highScoreEntry);
+	}
+
+	public int ranked(HighScoreEntry check) {
+		int rank = 1;
+		for (HighScoreEntry hse : highscore) {
+			if (hse.getPoints() >= check.getPoints()) {
+				rank++;
+			}
+		}
+		if (rank > SCORE_MAX || check.getPoints() == 0) {
+			return 0;
+		}
+		return rank;
 	}
 
 }

@@ -19,6 +19,18 @@ import gosm.ui.IDistribute;
 public class GameManager {
 
 	
+	private static final String DATA = "data";
+
+	private static final String HEIGHT = "height";
+
+	private static final String WIDTH = "width";
+
+	private static final String NAME = "name";
+
+	private static final String UUID = "uuid";
+
+	private static final String SCORE = "score";
+
 	private static final String CRLF = "\r\n";
 	
 	private IDistribute distribute;
@@ -108,12 +120,12 @@ public class GameManager {
 	}
 	
 	private Game loadFromProps(Properties p) {
-		String uuid = p.getProperty("uuid");
-		String name = p.getProperty("name");
-		int width = Integer.parseInt(p.getProperty("width"));
-		int height = Integer.parseInt(p.getProperty("height"));
+		String uuid = p.getProperty(UUID);
+		String name = p.getProperty(NAME);
+		int width = Integer.parseInt(p.getProperty(WIDTH));
+		int height = Integer.parseInt(p.getProperty(HEIGHT));
 		int[][] tdata = new int[width][height];
-		String[] dstr = p.getProperty("data").split(",");
+		String[] dstr = p.getProperty(DATA).split(",");
 		int index = 0;
 		for (int col=0;col<width;col++) {
 			for (int row=0;row<height;row++) {
@@ -121,7 +133,17 @@ public class GameManager {
 				index++;
 			}
 		}
-		return new Game(uuid,name,width,height,false,tdata);
+		Game game = new Game(uuid,name,width,height,false,tdata);
+		String s = "";
+		int val = 1;
+		do {
+			s = p.getProperty(SCORE + val);
+			if (s != null) {
+				game.addHighScore(new HighScoreEntry(s));
+			}
+			val++;
+		} while (s != null);
+		return game;
 	}
 
 	public void updateGameInCache(Game game) {
@@ -144,11 +166,16 @@ public class GameManager {
 	
 	private StringBuffer saveString(Game game) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("uuid=").append(game.getKey()).append(CRLF);
-		sb.append("name=").append(game.getName()).append(CRLF);
-		sb.append("width=").append(game.getWidth()).append(CRLF);
-		sb.append("height=").append(game.getHeight()).append(CRLF);
-		sb.append("data=").append(dataStr(game)).append(CRLF);
+		sb.append(UUID).append("=").append(game.getKey()).append(CRLF);
+		sb.append(NAME).append("=").append(game.getName()).append(CRLF);
+		sb.append(WIDTH).append("=").append(game.getWidth()).append(CRLF);
+		sb.append(HEIGHT).append("=").append(game.getHeight()).append(CRLF);
+		sb.append(DATA).append("=").append(dataStr(game)).append(CRLF);
+		int val = 1;
+		for (HighScoreEntry hse : game.getHighScore()) {
+			sb.append(SCORE + val + "=").append(hse.saveStr()).append(CRLF);
+			val++;
+		}
 		return sb;
 	}
 	
@@ -160,5 +187,9 @@ public class GameManager {
 			}
 		}
 		return sb.toString();
+	}
+
+	public Game getGameByUUID(String guuid) {
+		return games.get(guuid);
 	}
 }

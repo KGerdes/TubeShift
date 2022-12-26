@@ -9,12 +9,12 @@ import javafx.scene.paint.Paint;
 
 public class Bitmapper {
 	
-	public static final int BMP_COUNT = 16;
+	public static final int BMP_COUNT = 20;
 	
 	public static final int BMP_WIDTH = 70;
 	public static final int TUBE_RADIUS = 12;
 	
-	private Image[] image = new Image[16];
+	private Image[] image = new Image[BMP_COUNT];
 	
 	public Bitmapper() {
 		for (int i=0;i<image.length;i++) {
@@ -27,7 +27,7 @@ public class Bitmapper {
 	}
 	
 
-	private Image createImage(int i) {
+	private Image createImage(int index) {
 		int halfmin = BMP_WIDTH / 2 - TUBE_RADIUS;
 		WritableImage wi = new WritableImage(BMP_WIDTH,BMP_WIDTH);
 		
@@ -37,18 +37,37 @@ public class Bitmapper {
 		gc.setStroke(Color.gray(0.90));
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);
-		if ((i & 1) != 0) {
-			gc.fillRect(halfmin, 0, TUBE_RADIUS * 2, BMP_WIDTH / 2);
+		if (index < 16) {
+			if ((index & 1) != 0) {
+				gc.fillRect(halfmin, 0, TUBE_RADIUS * 2, BMP_WIDTH / 2);
+			}
+			if ((index & 2) != 0) {
+				gc.fillRect(BMP_WIDTH / 2 - TUBE_RADIUS, halfmin, BMP_WIDTH, TUBE_RADIUS * 2);
+			}
+			if ((index & 4) != 0) {
+				gc.fillRect(halfmin, BMP_WIDTH / 2 - TUBE_RADIUS, TUBE_RADIUS * 2, BMP_WIDTH);
+			}
+			if ((index & 8) != 0) {
+				gc.fillRect(0, halfmin, BMP_WIDTH / 2 + TUBE_RADIUS, TUBE_RADIUS * 2);
+			}
+		} else {
+			double rad = BMP_WIDTH / 2 + TUBE_RADIUS;
+			double x = 0;
+			double y = 0;
+			
+			index = index - 16;
+			if ((index & 1) != 0) {
+				x = BMP_WIDTH;
+			}
+			if ((index & 2) != 0) {
+				y = BMP_WIDTH;
+			}
+			gc.fillOval(x - rad, y - rad, rad * 2, rad * 2);
+			gc.setFill(Color.WHITE);
+			rad = BMP_WIDTH / 2 - TUBE_RADIUS;
+			gc.fillOval(x - rad, y - rad, rad * 2, rad * 2);
 		}
-		if ((i & 2) != 0) {
-			gc.fillRect(BMP_WIDTH / 2 - TUBE_RADIUS, halfmin, BMP_WIDTH, TUBE_RADIUS * 2);
-		}
-		if ((i & 4) != 0) {
-			gc.fillRect(halfmin, BMP_WIDTH / 2 - TUBE_RADIUS, TUBE_RADIUS * 2, BMP_WIDTH);
-		}
-		if ((i & 8) != 0) {
-			gc.fillRect(0, halfmin, BMP_WIDTH / 2 + TUBE_RADIUS, TUBE_RADIUS * 2);
-		}
+		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);
 		canvas.snapshot(null, wi);
 		return wi;
 	}

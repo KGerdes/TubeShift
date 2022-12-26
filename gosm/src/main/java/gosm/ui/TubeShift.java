@@ -1,9 +1,15 @@
 package gosm.ui;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import gosm.backend.Game;
 import gosm.backend.GameManager;
+import gosm.backend.TubeShiftException;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -13,7 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-public class GosN extends Application implements IDistribute {
+public class TubeShift extends Application implements IDistribute {
 
 	private static String[] systemArgs;
 	private String workingDir;
@@ -23,6 +29,9 @@ public class GosN extends Application implements IDistribute {
 	private MenuPane menu;
 	private BottomControls controls;
 	private boolean running;
+	private Properties sysprops;
+	private File propFile;
+	private boolean propsChanged = false;
 	
 	@Override
     public void start(Stage stage) {
@@ -46,7 +55,20 @@ public class GosN extends Application implements IDistribute {
             controls.closeApplication();
         });
         stage.show();
+        menu.showPropGame();
     }
+	
+	@Override
+	public void stop() {
+		if (propsChanged) {
+			try {
+				sysprops.store(new FileOutputStream(propFile), null);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	private void resize() {
 		scene.getWindow().setWidth(scene.getX() + gameGrid.getWidth() + 18);
@@ -76,7 +98,13 @@ public class GosN extends Application implements IDistribute {
 		if (running) {
 			controls.startGame(gameGrid.getSelectedGame());
 		} else {
-			controls.finishGame();
+			if (gameGrid != null) {
+				if (gameGrid.isGameFinished()) { 
+					controls.finishGame();
+				} else {
+					controls.stopGame();
+				}
+			}
 		}
 	}
 
@@ -131,8 +159,17 @@ public class GosN extends Application implements IDistribute {
 		if (!f.isDirectory()) {
 			throw new IllegalArgumentException("Working directory not found, please create directory : " + dir);
 		}
-		
 		workingDir = dir;
+		
+		propFile = new File(getWorkingFile("tubeshift.properties"));
+		sysprops = new Properties();
+		if (propFile.exists()) {
+			try {
+				sysprops.load(new FileInputStream(propFile));
+			} catch (Exception e) {
+				throw new TubeShiftException(e.getMessage(), e);
+			}
+		}
 	}
 
 	
@@ -140,5 +177,16 @@ public class GosN extends Application implements IDistribute {
     	systemArgs = args;
         launch();
     }
+
+	@Override
+	public String getProp(String propname) {
+		return sysprops.getProperty(propname);
+	}
+
+	@Override
+	public void setProp(String propname, String newValue) {
+		propsChanged = true;
+		sysprops.setProperty(propname, newValue);
+	}
 
 }
