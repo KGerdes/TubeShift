@@ -32,17 +32,16 @@ public class MenuPane extends HBox {
 		setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER);
 		this.setSpacing(UIConstants.STD_SPACING);
 		this.setPadding(new Insets(UIConstants.STD_PADDING));
-		start = new Button("Starten");
+		start = UIConstants.createIconButton("play_circle", "Beginnen");
 		start.setOnMouseClicked(e -> {
 			distribute.restartGame();
 		});
-		stop = new Button("Aufgeben");
-		
+		stop = UIConstants.createIconButton("stop_circle", "Aufgeben");
 		stop.setOnMouseClicked(e -> {
 			distribute.stopGame();
 		});
 		Region r = new Region();
-		newGame = new Button("Neues Spiel");
+		newGame = UIConstants.createIconButton("add_circle", "Neues Spielbrett anlegen");
 		newGame.setAlignment(Pos.CENTER_RIGHT);
 		newGame.setOnMouseClicked(e -> {
 			if (editor == null) {
@@ -50,7 +49,7 @@ public class MenuPane extends HBox {
 			}
 			editor.createNewGame();
 		});
-		editGame = new Button("Bearbeiten");
+		editGame = UIConstants.createIconButton("draw", "Spielbrett bearbeiten");
 		editGame.setAlignment(Pos.CENTER_RIGHT);
 		editGame.setOnMouseClicked(e -> {
 			if (editor == null) {
@@ -58,7 +57,11 @@ public class MenuPane extends HBox {
 			}
 			editor.editGame(UIConstants.gameManager.getSelected());
 		});
+		Region r2 = new Region();
+		r2.setMinWidth(30);
 		gameSelect = new ComboBox<Game>();
+		gameSelect.setPadding(new Insets(4,0,4,0));
+		gameSelect.setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER + "-fx-font-size: 20px;-fx-font-weight: bold;");
 		gameSelect.setMinWidth(160);
 		gameSelect.setItems(getGameList());
 		gameSelect.valueProperty().addListener(new ChangeListener<Object>() {
@@ -74,7 +77,7 @@ public class MenuPane extends HBox {
 			}
 		});
 		HBox.setHgrow(r, Priority.ALWAYS);
-		this.getChildren().addAll(gameSelect, start, stop, r, newGame, editGame);
+		this.getChildren().addAll(gameSelect, r2, start, stop, r, newGame, editGame);
 		setRunningState(false);
 	}
 

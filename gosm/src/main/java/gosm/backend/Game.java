@@ -44,7 +44,6 @@ public class Game {
 		this.height = height;
 		this.data = data;
 		this.empty = empty;
-		System.out.println("Len : " + data.length);
 		check();
 	}
 	

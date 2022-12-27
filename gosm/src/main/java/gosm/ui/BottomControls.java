@@ -20,6 +20,8 @@ import javafx.scene.text.TextAlignment;
 
 public class BottomControls extends HBox {
 	
+	private static final String TIME_FORMAT = "00:00:00";
+	private static final String ZERO_PTS = "0000";
 	private static final String PROP_GAMERNAME = "name";
 	private static final int LHEIGHT = 26;
 	private Timer timer;
@@ -34,6 +36,7 @@ public class BottomControls extends HBox {
 	private int steps = 0;
 	private long startMs = 0;
 	private long points = 0;
+	private long fixedTime = 0;
 	private long complexity = 0;
 	
 	public BottomControls(IDistribute distribute) {
@@ -41,51 +44,37 @@ public class BottomControls extends HBox {
 		setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER);
 		this.setSpacing(UIConstants.STD_SPACING);
 		this.setPadding(new Insets(UIConstants.STD_PADDING));
-		Label tmp = new Label("Spieler :");
-		tmp.setMinHeight(LHEIGHT);
-		tmp.setAlignment(Pos.CENTER_LEFT);
 		gamerName = new TextField();
 		gamerName.setPromptText("Spieler");
 		gamerName.setText(distribute.getProp(PROP_GAMERNAME));
 		gamerName.textProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println("Text changed: " + newValue);
 			distribute.setProp(PROP_GAMERNAME, newValue);
 		});
-		Label tmp2 = new Label("Steps :");
-		tmp2.setMinHeight(LHEIGHT);
-		tmp2.setAlignment(Pos.CENTER_LEFT);
-		lblSteps = new Label("-");
-		lblSteps.setAlignment(Pos.CENTER_LEFT);
-		lblSteps.minWidth(80);
+		InfoBox<TextField> ib = new InfoBox<>("Spielername", gamerName, 150);
+		lblSteps = new Label(ZERO_PTS);
+		lblSteps.setAlignment(Pos.BASELINE_CENTER);
 		lblSteps.setMinHeight(LHEIGHT);
-		Label tmp3 = new Label("Zeit :");
-		tmp3.setMinHeight(LHEIGHT);
-		tmp3.setAlignment(Pos.CENTER_LEFT);
-		lblTime = new Label("-");
-		lblTime.setAlignment(Pos.CENTER_LEFT);
-		lblTime.minWidth(80);
+		InfoBox<Label> ibSteps = new InfoBox<>("Schritte", lblSteps,100);
+		lblTime = new Label(TIME_FORMAT);
+		lblTime.setAlignment(Pos.BASELINE_CENTER);
 		lblTime.setMinHeight(LHEIGHT);
-		Label tmp4 = new Label("Punkte :");
-		tmp4.setMinHeight(LHEIGHT);
-		tmp4.setAlignment(Pos.CENTER_LEFT);
-		lblPoints = new Label("-");
-		lblPoints.setAlignment(Pos.CENTER_LEFT);
-		lblPoints.minWidth(80);
+		InfoBox<Label> ibTime = new InfoBox<>("Zeit", lblTime,100);
+		lblPoints = new Label(ZERO_PTS);
+		lblPoints.setAlignment(Pos.BASELINE_CENTER);
 		lblPoints.setMinHeight(LHEIGHT);
-		Label tmp5 = new Label("Komplexität :");
-		tmp5.setMinHeight(LHEIGHT);
-		tmp5.setAlignment(Pos.CENTER_LEFT);
+		InfoBox<Label> ibPoints = new InfoBox<>("Punkte", lblPoints,100);
 		lblCompl = new Label("-");
-		lblCompl.setAlignment(Pos.CENTER_LEFT);
-		lblCompl.minWidth(80);
+		lblCompl.setAlignment(Pos.BASELINE_CENTER);
 		lblCompl.setMinHeight(LHEIGHT);
+		InfoBox<Label> ibComplex = new InfoBox<>("Komplexität", lblCompl,100);
+		
 		Region reg = new Region();
 		HBox.setHgrow(reg, Priority.ALWAYS);
-		hscoreBtn = new Button("Highscore");
+		hscoreBtn = UIConstants.createIconButton("star", "Highscore"); //new Button("Highscore");
 		hscoreBtn.setOnMouseClicked(e -> {
 			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), null);
 		});
-		getChildren().addAll(tmp, gamerName, tmp2, lblSteps, tmp3, lblTime, tmp4, lblPoints, tmp5, lblCompl, reg, hscoreBtn);
+		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibComplex, reg, hscoreBtn);
 		initTimer();
 	}
 
@@ -93,6 +82,7 @@ public class BottomControls extends HBox {
 		running = true;
 		points = 0;
 		steps = 0;
+		fixedTime = 0;
 		startMs = System.currentTimeMillis();
 		complexity = gm.getComplexity();
 	}
@@ -100,8 +90,8 @@ public class BottomControls extends HBox {
 	public void finishGame() {
 		points = calculatePoints();
 		if (running && points > 0) {
-			long tm = (System.currentTimeMillis() - startMs) / 1000;
-			HighScoreEntry hsr = new HighScoreEntry(gamerName.getText(), points, steps, tm);
+			fixedTime = (System.currentTimeMillis() - startMs) / 1000;
+			HighScoreEntry hsr = new HighScoreEntry(gamerName.getText(), points, steps, fixedTime);
 			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), hsr);
 		}
 		running = false;
@@ -126,20 +116,16 @@ public class BottomControls extends HBox {
 	private void updateFields() {
 		Platform.runLater(() -> {
 			if (running) {
-				long tm = (System.currentTimeMillis() - startMs) / 1000;
-    			lblSteps.setText(String.valueOf(steps));
-    			lblTime.setText(String.format("%02d:%02d:%02d", tm / 3600, (tm / 60) % 60, tm % 60));
+				fixedTime = (System.currentTimeMillis() - startMs) / 1000;
     			points = calculatePoints();
     			if (points <= 0) {
     				distribute.stopGame();
     				points = 0;
     			}
-    			lblPoints.setText(String.valueOf(points));
-    		} else {
-    			lblSteps.setText("-");
-    			lblTime.setText("-");
-    			lblPoints.setText("-");
-    		}
+    		} 
+			lblSteps.setText(String.format("%04d", steps));
+			lblTime.setText(String.format("%02d:%02d:%02d", fixedTime / 3600, (fixedTime / 60) % 60, fixedTime % 60));
+			lblPoints.setText(String.format("%04d", points));
 			lblCompl.setText(String.valueOf(complexity));
 		});
 	}

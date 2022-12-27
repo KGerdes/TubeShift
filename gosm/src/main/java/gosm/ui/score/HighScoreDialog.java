@@ -99,32 +99,30 @@ public class HighScoreDialog extends VBox {
 	
 	private void addColumns() {
 		TableColumn<HighScoreEntry,Long> ti = new TableColumn<>();
+		ti.setStyle("-fx-alignment: CENTER-RIGHT;");
 		ti.setText("Rang");
 		ti.setCellValueFactory(p -> getCellInt(p)); // new PropertyValueFactory<HighScoreEntry, Integer>("rang"));
-		// ti.setCellFactory(c -> getCell(c));
 		tv.getColumns().add(ti);
 		TableColumn<HighScoreEntry,String> tc = new TableColumn<>();
 		tc.setText("Name");
+		tc.setStyle("-fx-alignment: CENTER-RIGHT;");
 		tc.setCellValueFactory(new PropertyValueFactory<HighScoreEntry, String>("name"));
 		tv.getColumns().add(tc);
 		ti = new TableColumn<>();
+		ti.setStyle("-fx-alignment: CENTER-RIGHT;");
+		ti.setText("Punkte");
+		ti.setCellValueFactory(new PropertyValueFactory<HighScoreEntry, Long>("points"));
+		tv.getColumns().add(ti);
+		ti = new TableColumn<>();
 		ti.setText("Schritte");
+		ti.setStyle("-fx-alignment: BASELINE_CENTER");
 		ti.setCellValueFactory(new PropertyValueFactory<HighScoreEntry, Long>("steps"));
 		tv.getColumns().add(ti);
 		tc = new TableColumn<>();
 		tc.setText("Zeit");
 		tc.setCellValueFactory(new PropertyValueFactory<HighScoreEntry, String>("time"));
 		tv.getColumns().add(tc);
-		ti = new TableColumn<>();
-		ti.setText("Punkte");
-		ti.setCellValueFactory(new PropertyValueFactory<HighScoreEntry, Long>("points"));
-		tv.getColumns().add(ti);
-	}
-
-	private TableCell<HighScoreEntry,Long> getCell(TableColumn<HighScoreEntry,Long> tc) {
-		TableCell<HighScoreEntry,Long> cell = new TableCell<>();
-		// cell.setStyle("");
-		return cell;
+		
 	}
 	
 	private ObservableValue<Long> getCellInt(TableColumn.CellDataFeatures<HighScoreEntry,Long> cdf) {
