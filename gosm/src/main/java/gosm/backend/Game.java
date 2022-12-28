@@ -236,9 +236,7 @@ public class Game {
 
 	public List<HighScoreEntry> getHighScore() {
 		List<HighScoreEntry> tmp = highscore.stream()
-				.sorted((h1, h2) -> {
-					return (int)(h2.getPoints() - h1.getPoints());
-				})
+				.sorted()
 				.collect(Collectors.toList());
 		int rang = 1;
 		for (HighScoreEntry hse : tmp) {
@@ -251,9 +249,7 @@ public class Game {
 		if (highScoreEntry != null) {
 			list.add(highScoreEntry);
 		}
-		Collections.sort(list, (h1, h2) -> {
-			return (int)(h2.getPoints() - h1.getPoints());
-		});
+		Collections.sort(list);
 		int rang = 1;
 		for (HighScoreEntry hse : list) {
 			hse.setRang(rang++);
@@ -270,7 +266,7 @@ public class Game {
 	public int ranked(HighScoreEntry check) {
 		int rank = 1;
 		for (HighScoreEntry hse : highscore) {
-			if (hse.getPoints() >= check.getPoints()) {
+			if (hse.compareTo(check) < 0) {
 				rank++;
 			}
 		}
