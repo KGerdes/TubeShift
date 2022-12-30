@@ -230,8 +230,8 @@ public class Game {
 		for (Integer i : tst.values()) {
 			max = Math.max(max, i);
 		}
-		double v = (width * height / max) * (tst.size() - 1);
-		return Math.round(Math.sqrt(v) * 93.7);
+		double v = (width * height - max) * (Math.max(1.0,Math.sqrt(tst.size())) - 1);
+		return Math.round(Math.sqrt(v) * 50.0);
 	}
 
 	public List<HighScoreEntry> getHighScore() {

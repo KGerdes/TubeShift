@@ -105,7 +105,10 @@ public class MenuPane extends HBox {
 	public void reloadGameList() {
 		gameSelect.getItems().clear();
 		gameSelect.getItems().addAll(UIConstants.gameManager.getGames());
-		
+	}
+	
+	public void selectGame(Game game) {
+		gameSelect.setValue(game);
 	}
 
 	public void showPropGame() {
@@ -117,5 +120,7 @@ public class MenuPane extends HBox {
 			}
 		}
 	}
+
+	
 	
 }

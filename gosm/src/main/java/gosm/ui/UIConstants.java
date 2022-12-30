@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 
 public class UIConstants {
 	public static int STD_PADDING = 8;
@@ -17,9 +18,13 @@ public class UIConstants {
 	public static final String BTN_IDLE_STYLE = "-fx-background-color: white; -fx-border-color: white; -fx-border-width: 2px; -fx-border-radius: 15; -fx-padding: 0px;";
 	public static final String BTN_HOVER_STYLE = "-fx-background-color: white; -fx-border-color: #aaaaaa; -fx-border-width: 2px; -fx-border-radius: 15; -fx-padding: 0px;";
 	public static final String BTN_PRESSED_STYLE = "-fx-background-color: white; -fx-border-color: #444444; -fx-border-width: 2px; -fx-border-radius: 20; -fx-padding: 0px;";
-	public static Bitmapper bitmaps = new Bitmapper();
+	public static Bitmapper bitmaps = null;
 	public static GameManager gameManager = null;
 	
+	
+	public static void initBitmaps(Color back, Color tube, Color frame) {
+		bitmaps = new Bitmapper(back, tube, frame);
+	}
 	
 	public static Button createIconButton(String icon, String tooltip) {
 		final Button b = new Button();

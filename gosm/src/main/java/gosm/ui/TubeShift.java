@@ -11,6 +11,7 @@ import gosm.backend.Game;
 import gosm.backend.GameManager;
 import gosm.backend.GameState;
 import gosm.backend.TubeShiftException;
+import gosm.ui.settings.SettingsDialog;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class TubeShift extends Application implements IDistribute {
@@ -38,6 +40,7 @@ public class TubeShift extends Application implements IDistribute {
     public void start(Stage stage) {
 		UIConstants.gameManager = new GameManager(this);
 		initWorkingDir(systemArgs);
+		initBitmaps();
 		addGames();
 		menu = new MenuPane(this);
 		controls = new BottomControls(this);
@@ -62,18 +65,59 @@ public class TubeShift extends Application implements IDistribute {
 	@Override
 	public void stop() {
 		if (propsChanged) {
-			try {
-				sysprops.store(new FileOutputStream(propFile), null);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			storeProps();
+		}
+	}
+	
+	private void storeProps() {
+		try {
+			sysprops.store(new FileOutputStream(propFile), null);
+			propsChanged = false;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
 	private void resize() {
 		scene.getWindow().setWidth(scene.getX() + gameGrid.getWidth() + 18);
 		scene.getWindow().setHeight(scene.getY() + gameGrid.getCalculatedHeight() + 140);
+	}
+	
+	private void initBitmaps() {
+		UIConstants.initBitmaps(readColor(IDistribute.RGB_BACKGROUND_PROP,SettingsDialog.DEFAULT_BACKGROUND_COLOR), 
+								readColor(IDistribute.RGB_TUBES_PROP, SettingsDialog.DEFAULT_TUBES_COLOR), 
+								readColor(IDistribute.RGB_FRAME_PROP, SettingsDialog.DEFAULT_FRAME_COLOR));
+	}
+	
+	private Color readColor(String probname, Color def) {
+		try {
+			String[] rgb = getProp(probname).split(",");
+			return Color.rgb(Integer.parseInt(rgb[0]), 
+					Integer.parseInt(rgb[1]), 
+					Integer.parseInt(rgb[2]));
+		} catch (Exception e) {
+			return def;
+		}
+	}
+	
+	private void writeColor(String propname, Color rgb) {
+		StringBuilder sb = new StringBuilder();
+		sb.append((int)(255 * rgb.getRed())).append(",")
+			.append((int)(255 * rgb.getGreen())).append(",")
+			.append((int)(255 * rgb.getBlue()));
+		setProp(propname, sb.toString());
+	}
+	
+	@Override
+	public void changeImageColors(Color background, Color tubes, Color frame) {
+		writeColor(IDistribute.RGB_BACKGROUND_PROP,background); 
+		writeColor(IDistribute.RGB_TUBES_PROP, tubes); 
+		writeColor(IDistribute.RGB_FRAME_PROP, frame);
+		storeProps();
+		initBitmaps();
+		
+		gameGrid.redrawBitmaps(UIConstants.bitmaps);
 	}
 	
 	private void addGames() {
@@ -148,6 +192,7 @@ public class TubeShift extends Application implements IDistribute {
 	@Override
 	public void gameChanged(Game game) {
 		menu.reloadGameList();
+		menu.selectGame(game);
 	}
 	
 	@Override
@@ -220,5 +265,6 @@ public class TubeShift extends Application implements IDistribute {
 	public Game getGame() {
 		return gameGrid.getSelectedGame();
 	}
+
 
 }

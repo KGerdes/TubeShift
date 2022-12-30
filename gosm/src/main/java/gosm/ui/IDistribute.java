@@ -2,8 +2,13 @@ package gosm.ui;
 
 import gosm.backend.Game;
 import gosm.backend.GameState;
+import javafx.scene.paint.Color;
 
 public interface IDistribute {
+	
+	public static final String RGB_BACKGROUND_PROP = Bitmapper.class.getName() + ".background";
+	public static final String RGB_TUBES_PROP = Bitmapper.class.getName() + ".tube";
+	public static final String RGB_FRAME_PROP = Bitmapper.class.getName() + ".frame";
 
 	public void startNewGame(Game game);
 
@@ -28,4 +33,6 @@ public interface IDistribute {
 	public Game getGame();
 
 	public void pauseGame();
+
+	public void changeImageColors(Color background, Color tubes, Color frame);
 }

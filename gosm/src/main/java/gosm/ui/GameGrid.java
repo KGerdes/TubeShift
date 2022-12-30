@@ -11,6 +11,7 @@ import com.sun.javafx.scene.BoundsAccessor;
 
 import gosm.backend.Game;
 import gosm.backend.GameState;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -37,6 +38,7 @@ public class GameGrid extends Pane {
 	private GameImage editable;
 	private GameImage fixed;
 	private Game pausedGame;
+	private Label paused;
 	
 	List<Rectangle> rectangles = new ArrayList<>();
 	
@@ -49,6 +51,12 @@ public class GameGrid extends Pane {
 		getChildren().add(canvas);
 		getChildren().add(editable);
 		getChildren().add(fixed);
+		paused = new Label("Pausiert");
+		paused.setStyle("-fx-font-size: 48px;-fx-font-weight: bold;");
+		paused.setAlignment(Pos.BASELINE_CENTER);
+		paused.setVisible(false);
+		paused.setTextFill(UIConstants.bitmaps.getTubes());
+		editable.getChildren().add(paused);
 		activateGame(UIConstants.gameManager.getSelected(), false);
 	}
 
@@ -63,6 +71,10 @@ public class GameGrid extends Pane {
 		editable.setLayoutY(IMAGE_OFFSET);
 		fixed.setLayoutX(IMAGE_OFFSET * 2 + editable.getWidth());
 		fixed.setLayoutY(IMAGE_OFFSET);
+		paused.setMinWidth(editable.getWidth());
+		paused.setMinHeight(editable.getHeight());
+		paused.setMaxWidth(editable.getWidth());
+		paused.setMaxHeight(editable.getHeight());
 		double width = Math.max(fixed.getWidth() + fixed.getLayoutX() + IMAGE_OFFSET, 884.0);
 		setWidth(width);
 		setHeight(editable.getHeight() + IMAGE_OFFSET * 2 + 40);
@@ -105,7 +117,7 @@ public class GameGrid extends Pane {
 	}
 	
 	private void initRectangle(final Rectangle r, Integer row, Integer col, boolean up) {
-		r.setFill(Color.gray(1.0));
+		r.setFill(UIConstants.bitmaps.getBackground());
 		r.setStroke(Color.gray(0.5));
 		getChildren().add(r);
 		r.setOnMouseClicked(e -> {
@@ -126,14 +138,14 @@ public class GameGrid extends Pane {
 		rectangles.add(r);
 		r.setOnMouseEntered(e -> {
 			if (distribute.isRunning()) {
-				r.setFill(Color.rgb(255,240,160));
-				r.setStroke(Color.BLACK);
+				r.setFill(UIConstants.bitmaps.getTubes());
+				r.setStroke(UIConstants.bitmaps.getFrame());
 				r.setScaleX(1.1);
 				r.setScaleY(1.1);
 			}
 		});
 		r.setOnMouseExited(e -> {
-			r.setFill(Color.gray(1.0));
+			r.setFill(UIConstants.bitmaps.getBackground());
 			r.setStroke(Color.gray(0.5));
 			r.setScaleX(1.0);
 			r.setScaleY(1.0);
@@ -153,6 +165,7 @@ public class GameGrid extends Pane {
 	}
 
 	public void pauseGame(boolean toPause) {
+		paused.setVisible(toPause);
 		if (toPause) {
 			pausedGame = editable.getGame();
 			Game tmp = Game.createBlankGame(pausedGame.getWidth(), pausedGame.getHeight());
@@ -160,5 +173,17 @@ public class GameGrid extends Pane {
 		} else {
 			editable.setGame(pausedGame);
 		}
+	}
+
+	public void redrawBitmaps(Bitmapper bitmaps) {
+		editable.setBitmapper(bitmaps);
+		fixed.setBitmapper(bitmaps);
+		editable.redraw();
+		fixed.redraw();
+		for (Rectangle r : rectangles) {
+			r.setStroke(UIConstants.bitmaps.getFrame());
+			r.setFill(UIConstants.bitmaps.getBackground());
+		}
+		paused.setTextFill(UIConstants.bitmaps.getTubes());
 	}
 }

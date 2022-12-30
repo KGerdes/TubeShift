@@ -1,6 +1,5 @@
 package gosm.ui.score;
 
-import java.awt.image.TileObserver;
 import java.util.List;
 import java.util.Optional;
 import gosm.backend.Game;

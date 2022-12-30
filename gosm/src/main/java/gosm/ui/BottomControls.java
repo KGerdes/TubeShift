@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import gosm.backend.Game;
 import gosm.backend.HighScoreEntry;
 import gosm.ui.score.HighScoreDialog;
+import gosm.ui.settings.SettingsDialog;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -84,7 +85,7 @@ public class BottomControls extends HBox {
 		});
 		settingsBtn = UIConstants.createIconButton("settings", "Spieleinstellungen"); //new Button("Highscore");
 		settingsBtn.setOnMouseClicked(e -> {
-			
+			SettingsDialog.showSettings(distribute);
 		});
 		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn);
 		initTimer();
