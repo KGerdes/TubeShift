@@ -1,6 +1,7 @@
 package gosm.ui;
 
 import gosm.backend.Game;
+import gosm.backend.GameState;
 
 public interface IDistribute {
 
@@ -8,7 +9,7 @@ public interface IDistribute {
 
 	public void restartGame();
 	
-	public void setGameState(boolean running);
+	public void setGameState(GameState running);
 	
 	public boolean isRunning();
 
@@ -23,4 +24,8 @@ public interface IDistribute {
 	public String getProp(String string);
 
 	public void setProp(String string, String newValue);
+
+	public Game getGame();
+
+	public void pauseGame();
 }

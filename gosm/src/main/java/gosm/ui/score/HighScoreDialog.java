@@ -1,5 +1,6 @@
 package gosm.ui.score;
 
+import java.awt.image.TileObserver;
 import java.util.List;
 import java.util.Optional;
 import gosm.backend.Game;
@@ -76,17 +77,19 @@ public class HighScoreDialog extends VBox {
 			positionText.setAlignment(Pos.BASELINE_CENTER);
 		}
 		tv = new TableView<>();
-		tv.setSelectionModel(null);
+		tv.setSelectionModel(new NoSelectionModel<HighScoreEntry>(tv));
 		addColumns();
 		List<HighScoreEntry> tmplist = game.getHighScore();
 		if (optionalScore.isPresent()) {
 			Game.addHighScore(tmplist, optionalScore.get());
 		}
 		tv.getItems().addAll(tmplist);
+		
 		if (positionText != null) {
 			getChildren().addAll(positionText);
 		}
 		if (optionalScore.isPresent()) {
+			tv.scrollTo(optionalScore.get());
 			getChildren().addAll(vtmp);
 			name.setText(optionalScore.get().getName());
 		}
@@ -102,7 +105,6 @@ public class HighScoreDialog extends VBox {
 	}
 	
 	private void closeWindow() {
-		System.out.println("closed : " + closed);
 		if (optionalScore.isPresent() && !closed) {
 			optionalScore.get().setName(name.getText());
 			game.addHighScore(optionalScore.get());
@@ -118,6 +120,7 @@ public class HighScoreDialog extends VBox {
 		ti.setText("Rang");
 		ti.setCellValueFactory(p -> getCellInt(p)); // new PropertyValueFactory<HighScoreEntry, Integer>("rang"));
 		ti.setCellFactory(column -> getCell(Pos.CENTER_RIGHT));
+		
 		tv.getColumns().add(ti);
 		TableColumn<HighScoreEntry,String> tc = new TableColumn<>();
 		tc.setText("Name");
@@ -151,7 +154,6 @@ public class HighScoreDialog extends VBox {
 			@Override
             protected void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
-
                 setText(empty ? "" : getItem().toString());
                 setGraphic(null);
                 int index = getIndex();

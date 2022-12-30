@@ -30,12 +30,16 @@ public class BottomControls extends HBox {
 	private Label lblSteps;
 	private Label lblTime;
 	private Label lblPoints;
+	private Label lblRank;
 	private Label lblCompl;
 	private Button hscoreBtn;
+	private Button settingsBtn;
 	private boolean running = false;
+	private boolean paused = false;
 	private int steps = 0;
 	private long startMs = 0;
 	private long points = 0;
+	private long rank = 0;
 	private long fixedTime = 0;
 	private long complexity = 0;
 	
@@ -63,6 +67,10 @@ public class BottomControls extends HBox {
 		lblPoints.setAlignment(Pos.BASELINE_CENTER);
 		lblPoints.setMinHeight(LHEIGHT);
 		InfoBox<Label> ibPoints = new InfoBox<>("Punkte", lblPoints,100);
+		lblRank = new Label("-");
+		lblRank.setAlignment(Pos.BASELINE_CENTER);
+		lblRank.setMinHeight(LHEIGHT);
+		InfoBox<Label> ibRank = new InfoBox<>("Rang", lblRank,100);
 		lblCompl = new Label("-");
 		lblCompl.setAlignment(Pos.BASELINE_CENTER);
 		lblCompl.setMinHeight(LHEIGHT);
@@ -74,7 +82,11 @@ public class BottomControls extends HBox {
 		hscoreBtn.setOnMouseClicked(e -> {
 			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), null);
 		});
-		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibComplex, reg, hscoreBtn);
+		settingsBtn = UIConstants.createIconButton("settings", "Spieleinstellungen"); //new Button("Highscore");
+		settingsBtn.setOnMouseClicked(e -> {
+			
+		});
+		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn);
 		initTimer();
 	}
 
@@ -83,6 +95,7 @@ public class BottomControls extends HBox {
 		points = 0;
 		steps = 0;
 		fixedTime = 0;
+		rank = 0;
 		startMs = System.currentTimeMillis();
 		complexity = gm.getComplexity();
 	}
@@ -98,7 +111,7 @@ public class BottomControls extends HBox {
 	}
 	
 	public void stopGame() {
-		
+		running = false;
 	}
 	
 	public void initTimer() {
@@ -114,18 +127,21 @@ public class BottomControls extends HBox {
 	}
 	
 	private void updateFields() {
+		if (running && !paused) {
+			fixedTime = (System.currentTimeMillis() - startMs) / 1000;
+			points = calculatePoints();
+			HighScoreEntry hse = new HighScoreEntry(points, steps, fixedTime);
+			rank = distribute.getGame().ranked(hse);
+			if (points <= 0) {
+				distribute.stopGame();
+				points = 0;
+			}
+		} 
 		Platform.runLater(() -> {
-			if (running) {
-				fixedTime = (System.currentTimeMillis() - startMs) / 1000;
-    			points = calculatePoints();
-    			if (points <= 0) {
-    				distribute.stopGame();
-    				points = 0;
-    			}
-    		} 
 			lblSteps.setText(String.format("%04d", steps));
 			lblTime.setText(String.format("%02d:%02d:%02d", fixedTime / 3600, (fixedTime / 60) % 60, fixedTime % 60));
 			lblPoints.setText(String.format("%04d", points));
+			lblRank.setText(rank > 0 ? String.format("%02d", rank) : "-");
 			lblCompl.setText(String.valueOf(complexity));
 		});
 	}
@@ -144,7 +160,7 @@ public class BottomControls extends HBox {
 	}
 
 	public boolean isRunning() {
-		return running;
+		return running && !paused;
 	}
 
 	public void gridStep() {
@@ -153,5 +169,18 @@ public class BottomControls extends HBox {
 
 	public void gameSet(Game game) {
 		complexity = game.getComplexity();
+	}
+
+	public void unpauseGame() {
+		
+	}
+
+	public void pauseGame(boolean toPause) {
+		if (toPause) {
+			updateFields();
+		} else {
+			startMs = System.currentTimeMillis() - (fixedTime * 1000);
+		}
+		paused = toPause;
 	}
 }

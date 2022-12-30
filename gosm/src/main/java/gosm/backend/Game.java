@@ -276,4 +276,8 @@ public class Game {
 		return rank;
 	}
 
+	public boolean hasHighscore() {
+		return highscore.size() > 0;
+	}
+
 }

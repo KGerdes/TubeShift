@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import gosm.backend.Game;
 import gosm.backend.GameManager;
+import gosm.backend.GameState;
 import gosm.backend.TubeShiftException;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -28,7 +29,7 @@ public class TubeShift extends Application implements IDistribute {
 	private GameGrid gameGrid;
 	private MenuPane menu;
 	private BottomControls controls;
-	private boolean running;
+	private GameState gameState = GameState.OFFLINE;
 	private Properties sysprops;
 	private File propFile;
 	private boolean propsChanged = false;
@@ -88,22 +89,43 @@ public class TubeShift extends Application implements IDistribute {
 
 	@Override
 	public void restartGame() {
-		gameGrid.activateGame(gameGrid.getSelectedGame(), true);
+		if (gameState == GameState.OFFLINE) {
+			gameGrid.activateGame(gameGrid.getSelectedGame(), true);
+		} else {
+			if (gameState == GameState.PAUSED) {
+				setGameState(GameState.RUNNING);
+			}
+		}
 	}
 
 	@Override
-	public void setGameState(boolean running) {
-		this.running = running;
-		menu.setRunningState(running);
-		if (running) {
-			controls.startGame(gameGrid.getSelectedGame());
+	public void setGameState(GameState stateToSet) {
+		if (gameState == stateToSet) {
+			return;
+		}
+		System.out.println("GameState " + gameState + " -> " + stateToSet);
+		GameState old = this.gameState;
+		this.gameState = stateToSet;
+		menu.setRunningState(stateToSet);
+		if (stateToSet.isRunning()) {
+			if (old == GameState.PAUSED) {
+				controls.pauseGame(false);
+				gameGrid.pauseGame(false);
+			} else {
+				controls.startGame(gameGrid.getSelectedGame());
+			}
 		} else {
-			if (gameGrid != null) {
-				if (gameGrid.isGameFinished()) { 
-					controls.finishGame();
-				} else {
-					controls.stopGame();
+			if (stateToSet == GameState.OFFLINE) {
+				if (gameGrid != null) {
+					if (gameGrid.isGameFinished()) { 
+						controls.finishGame();
+					} else {
+						controls.stopGame();
+					}
 				}
+			} else {
+				controls.pauseGame(true);
+				gameGrid.pauseGame(true);
 			}
 		}
 	}
@@ -115,7 +137,12 @@ public class TubeShift extends Application implements IDistribute {
 
 	@Override
 	public void stopGame() {
-		setGameState(false);
+		setGameState(GameState.OFFLINE);
+	}
+	
+	@Override
+	public void pauseGame() {
+		setGameState(GameState.PAUSED);
 	}
 	
 	@Override
@@ -187,6 +214,11 @@ public class TubeShift extends Application implements IDistribute {
 	public void setProp(String propname, String newValue) {
 		propsChanged = true;
 		sysprops.setProperty(propname, newValue);
+	}
+
+	@Override
+	public Game getGame() {
+		return gameGrid.getSelectedGame();
 	}
 
 }

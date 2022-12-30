@@ -2,6 +2,7 @@ package gosm.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,7 +18,9 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -141,6 +144,10 @@ public class GameEditor extends BorderPane {
 		gameImage.setOnDragOver(e -> {
 			if (e.getGestureSource() instanceof ImageView) {
 				e.acceptTransferModes(TransferMode.COPY);
+			} else {
+				if (e.getGestureSource() instanceof GameImage) {
+					e.acceptTransferModes(TransferMode.COPY);
+				}
 			}
 			e.consume();
 		});
@@ -148,7 +155,25 @@ public class GameEditor extends BorderPane {
 			int index = dragList.indexOf(e.getGestureSource());
 			if (index >= 0) {
 				handleDrop(e.getSceneX(), e.getSceneY(), index);
+			} else {
+				String indexStr = e.getDragboard().getString();
+				if (indexStr != null) {
+					String[] v = indexStr.split("=");
+					if (v.length == 2 && v[0].equals("ImageIndex")) {
+						int val = Integer.valueOf(v[1]);
+						if (val >= 0 && val < Bitmapper.BMP_COUNT) {
+							handleDrop(e.getSceneX(), e.getSceneY(), val);
+						}
+					}
+				}
 			}
+			e.consume();
+		});
+		gameImage.setOnDragDetected(e -> {
+			Dragboard db = gameImage.startDragAndDrop(TransferMode.ANY);
+			ClipboardContent content = new ClipboardContent();
+	        content.putString(String.valueOf("ImageIndex=" + getBitmapOfGame(e.getSceneX(), e.getSceneY()) ));
+	        db.setContent(content);
 			e.consume();
 		});
 		controls.getChildren().add(grid);
@@ -161,10 +186,17 @@ public class GameEditor extends BorderPane {
 		});
 		save  = new Button("Speichern");
 		save.setOnMouseClicked(e -> {
-			gameImage.getGame().setName(nameText.getText());
-			UIConstants.gameManager.saveGame(gameImage.getGame());
-			distribute.gameChanged(gameImage.getGame());
-			closeEditor();
+			Game g = UIConstants.gameManager.getGameByUUID(gameImage.getGame().getKey());
+			if (g != null && g.hasHighscore()) {
+				Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Dieses Spielbrett beinhaltet einen Highscore. Dieser wird beim Speichern gelöscht! Ist das ok?", ButtonType.OK, ButtonType.CANCEL);
+				a.setHeaderText(null);
+				Optional<ButtonType> obt = a.showAndWait();
+				if (obt.isPresent() && obt.get() == ButtonType.OK) {
+					storeGame();
+				}
+			} else {
+				storeGame();
+			}
 		});
 		btns.getChildren().addAll(close, save);
 		controls.getChildren().add(r);
@@ -172,6 +204,13 @@ public class GameEditor extends BorderPane {
 		btns.setAlignment(Pos.BOTTOM_RIGHT);
 		this.setRight(controls);
 		VBox.setVgrow(r, Priority.ALWAYS);
+	}
+	
+	private void storeGame() {
+		gameImage.getGame().setName(nameText.getText());
+		UIConstants.gameManager.saveGame(gameImage.getGame());
+		distribute.gameChanged(gameImage.getGame());
+		closeEditor();
 	}
 	
 	private void scrollField(int row, int col, int toAdd) {
@@ -196,6 +235,12 @@ public class GameEditor extends BorderPane {
 		int row = (int)(sceneY - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
 		gameImage.getGame().setData(col, row, index);
 		gameImage.drawGame();
+	}
+	
+	private int getBitmapOfGame(double sceneX, double sceneY) {
+		int col = (int)(sceneX - gameImage.getLayoutX()) / Bitmapper.BMP_WIDTH;
+		int row = (int)(sceneY - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
+		return gameImage.getGame().getData(col, row);
 	}
 
 	private VBox createText(AtomicReference<TextField> textField, String caption, String value) {

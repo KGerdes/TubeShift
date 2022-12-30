@@ -1,6 +1,7 @@
 package gosm.ui;
 
 import gosm.backend.Game;
+import gosm.backend.GameState;
 import gosm.ui.editor.GameEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -22,6 +23,7 @@ public class MenuPane extends HBox {
 	private ComboBox<Game> gameSelect;
 	private Button start;
 	private Button stop;
+	private Button pause;
 	private Button newGame;
 	private Button editGame;
 	private GameEditor editor;
@@ -35,6 +37,10 @@ public class MenuPane extends HBox {
 		start = UIConstants.createIconButton("play_circle", "Beginnen");
 		start.setOnMouseClicked(e -> {
 			distribute.restartGame();
+		});
+		pause = UIConstants.createIconButton("pause_circle", "Spiel pausieren");
+		pause.setOnMouseClicked(e -> {
+			distribute.pauseGame();
 		});
 		stop = UIConstants.createIconButton("stop_circle", "Aufgeben");
 		stop.setOnMouseClicked(e -> {
@@ -77,8 +83,8 @@ public class MenuPane extends HBox {
 			}
 		});
 		HBox.setHgrow(r, Priority.ALWAYS);
-		this.getChildren().addAll(gameSelect, r2, start, stop, r, newGame, editGame);
-		setRunningState(false);
+		this.getChildren().addAll(gameSelect, r2, start, pause, stop, r, newGame, editGame);
+		setRunningState(GameState.OFFLINE);
 	}
 
 	private ObservableList<Game> getGameList() {
@@ -87,12 +93,13 @@ public class MenuPane extends HBox {
 		return ol;
 	}
 
-	public void setRunningState(boolean running) {
-		gameSelect.disableProperty().set(running);
-		start.disableProperty().set(running);
-		newGame.disableProperty().set(running);
-		stop.disableProperty().set(!running);
-		editGame.disableProperty().set(running);
+	public void setRunningState(GameState running) {
+		gameSelect.disableProperty().set(!running.isOffline());
+		start.disableProperty().set(running.isRunning());
+		pause.disableProperty().set(!running.isRunning());
+		stop.disableProperty().set(!running.isRunning());
+		newGame.disableProperty().set(!running.isOffline());
+		editGame.disableProperty().set(!running.isOffline());
 	}
 
 	public void reloadGameList() {
