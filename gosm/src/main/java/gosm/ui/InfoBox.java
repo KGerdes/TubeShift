@@ -4,7 +4,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 public class InfoBox<C extends Control> extends VBox {
@@ -27,5 +26,9 @@ public class InfoBox<C extends Control> extends VBox {
 		this.bottom.setMinWidth(width);
 		this.bottom.setMaxWidth(width);
 		this.getChildren().addAll(header, bottom);
+	}
+
+	public void setHeader(String text) {
+		header.setText(text);
 	}
 }

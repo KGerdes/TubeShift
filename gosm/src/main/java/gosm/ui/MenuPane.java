@@ -2,6 +2,7 @@ package gosm.ui;
 
 import gosm.backend.Game;
 import gosm.backend.GameState;
+import gosm.backend.StringLocalization;
 import gosm.ui.editor.GameEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,8 +12,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
@@ -30,24 +31,25 @@ public class MenuPane extends HBox {
 	
 	public MenuPane(IDistribute distribute) {
 		super();
+		StringLocalization sl = UIConstants.getLocalization();
 		this.distribute = distribute;
 		setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER);
 		this.setSpacing(UIConstants.STD_SPACING);
 		this.setPadding(new Insets(UIConstants.STD_PADDING));
-		start = UIConstants.createIconButton("play_circle", "Beginnen");
-		start.setOnMouseClicked(e -> {
-			distribute.restartGame();
-		});
-		pause = UIConstants.createIconButton("pause_circle", "Spiel pausieren");
-		pause.setOnMouseClicked(e -> {
-			distribute.pauseGame();
-		});
-		stop = UIConstants.createIconButton("stop_circle", "Aufgeben");
-		stop.setOnMouseClicked(e -> {
-			distribute.stopGame();
-		});
+		start = UIConstants.createIconButton("play_circle", sl.getByObject(this, "Start"));
+		start.setOnMouseClicked(e -> 
+			distribute.restartGame()
+		);
+		pause = UIConstants.createIconButton("pause_circle", sl.getByObject(this, "Pause"));
+		pause.setOnMouseClicked(e -> 
+			distribute.pauseGame()
+		);
+		stop = UIConstants.createIconButton("stop_circle", sl.getByObject(this, "Stop"));
+		stop.setOnMouseClicked(e -> 
+			distribute.stopGame()
+		);
 		Region r = new Region();
-		newGame = UIConstants.createIconButton("add_circle", "Neues Spielbrett anlegen");
+		newGame = UIConstants.createIconButton("add_circle", sl.getByObject(this, "NewBoard"));
 		newGame.setAlignment(Pos.CENTER_RIGHT);
 		newGame.setOnMouseClicked(e -> {
 			if (editor == null) {
@@ -55,17 +57,17 @@ public class MenuPane extends HBox {
 			}
 			editor.createNewGame();
 		});
-		editGame = UIConstants.createIconButton("draw", "Spielbrett bearbeiten");
+		editGame = UIConstants.createIconButton("draw", sl.getByObject(this, "EditBoard"));
 		editGame.setAlignment(Pos.CENTER_RIGHT);
 		editGame.setOnMouseClicked(e -> {
 			if (editor == null) {
 				editor = new GameEditor(distribute);
 			}
-			editor.editGame(UIConstants.gameManager.getSelected());
+			editor.editGame(UIConstants.getGameManager().getSelected());
 		});
 		Region r2 = new Region();
 		r2.setMinWidth(30);
-		gameSelect = new ComboBox<Game>();
+		gameSelect = new ComboBox<>();
 		gameSelect.setPadding(new Insets(4,0,4,0));
 		gameSelect.setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER + "-fx-font-size: 20px;-fx-font-weight: bold;");
 		gameSelect.setMinWidth(160);
@@ -76,7 +78,7 @@ public class MenuPane extends HBox {
 			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedGame) {
 				if (selectedGame != null) {
 					Game selgame = (Game)selectedGame;
-					UIConstants.gameManager.setSelected(selgame);
+					UIConstants.getGameManager().setSelected(selgame);
 					distribute.startNewGame(selgame);
 					distribute.setProp(GAME_UUID, selgame.getKey());
 				}
@@ -85,11 +87,21 @@ public class MenuPane extends HBox {
 		HBox.setHgrow(r, Priority.ALWAYS);
 		this.getChildren().addAll(gameSelect, r2, start, pause, stop, r, newGame, editGame);
 		setRunningState(GameState.OFFLINE);
+		localize();
+	}
+	
+	public void localize() {
+		StringLocalization sl = UIConstants.getLocalization();
+		start.setTooltip(new Tooltip(sl.getByObject(this, "Start")));
+		pause.setTooltip(new Tooltip(sl.getByObject(this, "Pause")));
+		stop.setTooltip(new Tooltip(sl.getByObject(this, "Stop")));
+		newGame.setTooltip(new Tooltip(sl.getByObject(this, "NewBoard")));
+		editGame.setTooltip(new Tooltip(sl.getByObject(this, "EditBoard")));
 	}
 
 	private ObservableList<Game> getGameList() {
 		ObservableList<Game> ol = FXCollections.observableArrayList();
-		ol.addAll(UIConstants.gameManager.getGames());
+		ol.addAll(UIConstants.getGameManager().getGames());
 		return ol;
 	}
 
@@ -104,7 +116,7 @@ public class MenuPane extends HBox {
 
 	public void reloadGameList() {
 		gameSelect.getItems().clear();
-		gameSelect.getItems().addAll(UIConstants.gameManager.getGames());
+		gameSelect.getItems().addAll(UIConstants.getGameManager().getGames());
 	}
 	
 	public void selectGame(Game game) {
@@ -114,7 +126,7 @@ public class MenuPane extends HBox {
 	public void showPropGame() {
 		String guuid = distribute.getProp(GAME_UUID);
 		if (guuid != null) {
-			Game g = UIConstants.gameManager.getGameByUUID(guuid);
+			Game g = UIConstants.getGameManager().getGameByUUID(guuid);
 			if (g != null) {
 				gameSelect.setValue(g);
 			}

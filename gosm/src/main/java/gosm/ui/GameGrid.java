@@ -1,26 +1,15 @@
 package gosm.ui;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.scene.BoundsAccessor;
 
 import gosm.backend.Game;
 import gosm.backend.GameState;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -55,9 +44,9 @@ public class GameGrid extends Pane {
 		paused.setStyle("-fx-font-size: 48px;-fx-font-weight: bold;");
 		paused.setAlignment(Pos.BASELINE_CENTER);
 		paused.setVisible(false);
-		paused.setTextFill(UIConstants.bitmaps.getTubes());
+		paused.setTextFill(UIConstants.getBitmaps().getTubes());
 		editable.getChildren().add(paused);
-		activateGame(UIConstants.gameManager.getSelected(), false);
+		activateGame(UIConstants.getGameManager().getSelected(), false);
 	}
 
 	public void activateGame(Game selected, boolean mixit) {
@@ -97,27 +86,27 @@ public class GameGrid extends Pane {
 		for (int row=0;row < editable.getGame().getHeight();row++) {
 			Rectangle r = new Rectangle(editable.getLayoutX() - (RECT_WIDTH + RECT_WIDTH_OFF), 
 							editable.getLayoutY() + row * Bitmapper.BMP_WIDTH + 4, 
-							RECT_WIDTH, Bitmapper.BMP_WIDTH - 8);
+							RECT_WIDTH, Bitmapper.BMP_WIDTH - 8.0);
 			initRectangle(r, row, null, false);
 			r = new Rectangle(editable.getLayoutX() + editable.getWidth() + RECT_WIDTH_OFF, 
 					editable.getLayoutY() + row * Bitmapper.BMP_WIDTH + 4, 
-					RECT_WIDTH, Bitmapper.BMP_WIDTH - 8);
+					RECT_WIDTH, Bitmapper.BMP_WIDTH - 8.0);
 			initRectangle(r, row, null, true);
 		}
 		for (int col=0;col < editable.getGame().getWidth();col++) {
 			Rectangle r = new Rectangle(editable.getLayoutX() + col * Bitmapper.BMP_WIDTH + 4, 
 							editable.getLayoutY() - (RECT_WIDTH + RECT_WIDTH_OFF), 
-							Bitmapper.BMP_WIDTH - 8, RECT_WIDTH);
+							Bitmapper.BMP_WIDTH - 8.0, RECT_WIDTH);
 			initRectangle(r, null, col, false);
 			r = new Rectangle(editable.getLayoutX() + col * Bitmapper.BMP_WIDTH + 4, 
 					editable.getLayoutY() + editable.getHeight() + RECT_WIDTH_OFF, 
-					Bitmapper.BMP_WIDTH - 8, RECT_WIDTH);
+					Bitmapper.BMP_WIDTH - 8.0, RECT_WIDTH);
 			initRectangle(r, null, col, true);
 		}
 	}
 	
 	private void initRectangle(final Rectangle r, Integer row, Integer col, boolean up) {
-		r.setFill(UIConstants.bitmaps.getBackground());
+		r.setFill(UIConstants.getBitmaps().getBackground());
 		r.setStroke(Color.gray(0.5));
 		getChildren().add(r);
 		r.setOnMouseClicked(e -> {
@@ -138,14 +127,14 @@ public class GameGrid extends Pane {
 		rectangles.add(r);
 		r.setOnMouseEntered(e -> {
 			if (distribute.isRunning()) {
-				r.setFill(UIConstants.bitmaps.getTubes());
-				r.setStroke(UIConstants.bitmaps.getFrame());
+				r.setFill(UIConstants.getBitmaps().getTubes());
+				r.setStroke(UIConstants.getBitmaps().getFrame());
 				r.setScaleX(1.1);
 				r.setScaleY(1.1);
 			}
 		});
 		r.setOnMouseExited(e -> {
-			r.setFill(UIConstants.bitmaps.getBackground());
+			r.setFill(UIConstants.getBitmaps().getBackground());
 			r.setStroke(Color.gray(0.5));
 			r.setScaleX(1.0);
 			r.setScaleY(1.0);
@@ -181,9 +170,9 @@ public class GameGrid extends Pane {
 		editable.redraw();
 		fixed.redraw();
 		for (Rectangle r : rectangles) {
-			r.setStroke(UIConstants.bitmaps.getFrame());
-			r.setFill(UIConstants.bitmaps.getBackground());
+			r.setStroke(UIConstants.getBitmaps().getFrame());
+			r.setFill(UIConstants.getBitmaps().getBackground());
 		}
-		paused.setTextFill(UIConstants.bitmaps.getTubes());
+		paused.setTextFill(UIConstants.getBitmaps().getTubes());
 	}
 }

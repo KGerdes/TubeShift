@@ -10,10 +10,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Game {
 
+	private static final Logger log = Logger.getLogger(Game.class.getName());
+	
 	public static final int SCORE_MAX = 20;
 	public static final int MIN_WIDTH = 4;
 	public static final int MAX_WIDTH = 10;
@@ -120,8 +124,10 @@ public class Game {
 	}
 	
 	public Game mixit() {
+		int mixCount = width * height * 15;
+		log.log(Level.INFO, "Mixer : " + mixCount);
 		Random r = new Random(new Date().getTime());
-		for (int i=0;i<200;i++) {
+		for (int i=0;i<mixCount;i++) {
 			if (i % 2 != 0) {
 				shiftRow(r.nextInt(height), r.nextInt(2) == 1);
 			} else {

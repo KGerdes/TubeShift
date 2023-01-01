@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import gosm.backend.Game;
 import gosm.backend.HighScoreEntry;
+import gosm.backend.StringLocalization;
 import gosm.ui.score.HighScoreDialog;
 import gosm.ui.settings.SettingsDialog;
 import javafx.application.Platform;
@@ -16,8 +17,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 
 public class BottomControls extends HBox {
 	
@@ -35,6 +34,12 @@ public class BottomControls extends HBox {
 	private Label lblCompl;
 	private Button hscoreBtn;
 	private Button settingsBtn;
+	private InfoBox<TextField> ib;
+	private InfoBox<Label> ibSteps;
+	private InfoBox<Label> ibTime;
+	private InfoBox<Label> ibPoints;
+	private InfoBox<Label> ibRank;
+	private InfoBox<Label> ibComplex;
 	private boolean running = false;
 	private boolean paused = false;
 	private int steps = 0;
@@ -45,6 +50,7 @@ public class BottomControls extends HBox {
 	private long complexity = 0;
 	
 	public BottomControls(IDistribute distribute) {
+		StringLocalization sl = UIConstants.getLocalization();
 		this.distribute = distribute;
 		setStyle(UIConstants.STD_PANE_COLOR_AND_BORDER);
 		this.setSpacing(UIConstants.STD_SPACING);
@@ -52,43 +58,56 @@ public class BottomControls extends HBox {
 		gamerName = new TextField();
 		gamerName.setPromptText("Spieler");
 		gamerName.setText(distribute.getProp(PROP_GAMERNAME));
-		gamerName.textProperty().addListener((observable, oldValue, newValue) -> {
-			distribute.setProp(PROP_GAMERNAME, newValue);
-		});
-		InfoBox<TextField> ib = new InfoBox<>("Spielername", gamerName, 150);
+		gamerName.textProperty().addListener((observable, oldValue, newValue) -> 
+			distribute.setProp(PROP_GAMERNAME, newValue)
+		);
+		ib = new InfoBox<>("", gamerName, 150);
 		lblSteps = new Label(ZERO_PTS);
 		lblSteps.setAlignment(Pos.BASELINE_CENTER);
 		lblSteps.setMinHeight(LHEIGHT);
-		InfoBox<Label> ibSteps = new InfoBox<>("Schritte", lblSteps,100);
+		ibSteps = new InfoBox<>("", lblSteps,100);
 		lblTime = new Label(TIME_FORMAT);
 		lblTime.setAlignment(Pos.BASELINE_CENTER);
 		lblTime.setMinHeight(LHEIGHT);
-		InfoBox<Label> ibTime = new InfoBox<>("Zeit", lblTime,100);
+		ibTime = new InfoBox<>("", lblTime,100);
 		lblPoints = new Label(ZERO_PTS);
 		lblPoints.setAlignment(Pos.BASELINE_CENTER);
 		lblPoints.setMinHeight(LHEIGHT);
-		InfoBox<Label> ibPoints = new InfoBox<>("Punkte", lblPoints,100);
+		ibPoints = new InfoBox<>("", lblPoints,100);
 		lblRank = new Label("-");
 		lblRank.setAlignment(Pos.BASELINE_CENTER);
 		lblRank.setMinHeight(LHEIGHT);
-		InfoBox<Label> ibRank = new InfoBox<>("Rang", lblRank,100);
+		ibRank = new InfoBox<>("", lblRank,100);
 		lblCompl = new Label("-");
 		lblCompl.setAlignment(Pos.BASELINE_CENTER);
 		lblCompl.setMinHeight(LHEIGHT);
-		InfoBox<Label> ibComplex = new InfoBox<>("Komplexität", lblCompl,100);
+		ibComplex = new InfoBox<>("", lblCompl,100);
 		
 		Region reg = new Region();
 		HBox.setHgrow(reg, Priority.ALWAYS);
-		hscoreBtn = UIConstants.createIconButton("star", "Highscore"); //new Button("Highscore");
-		hscoreBtn.setOnMouseClicked(e -> {
-			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), null);
-		});
-		settingsBtn = UIConstants.createIconButton("settings", "Spieleinstellungen"); //new Button("Highscore");
-		settingsBtn.setOnMouseClicked(e -> {
-			SettingsDialog.showSettings(distribute);
-		});
+		hscoreBtn = UIConstants.createIconButton("star", sl.getByObject(this, "HighScore")); 
+		hscoreBtn.setOnMouseClicked(
+				e -> 
+					HighScoreDialog.showHighScore(distribute, UIConstants.getGameManager().getSelected(), null)
+				);
+		settingsBtn = UIConstants.createIconButton("settings", sl.getByObject(this, "Options")); 
+		settingsBtn.setOnMouseClicked(e -> 
+			SettingsDialog.showSettings(distribute)
+		);
+		localize();
 		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn);
 		initTimer();
+		
+	}
+	
+	public void localize() {
+		StringLocalization sl = UIConstants.getLocalization();
+		ib.setHeader(sl.getByObject(this, "PlayerName"));
+		ibSteps.setHeader(sl.getByObject(this, "Steps"));
+		ibTime.setHeader(sl.getByObject(this, "Time"));
+		ibPoints.setHeader(sl.getByObject(this, "Points"));
+		ibRank.setHeader(sl.getByObject(this, "Ranking"));
+		ibComplex.setHeader(sl.getByObject(this, "Complexity"));
 	}
 
 	public void startGame(Game gm) {
@@ -106,7 +125,7 @@ public class BottomControls extends HBox {
 		if (running && points > 0) {
 			fixedTime = (System.currentTimeMillis() - startMs) / 1000;
 			HighScoreEntry hsr = new HighScoreEntry(gamerName.getText(), points, steps, fixedTime);
-			HighScoreDialog.showHighScore(distribute, UIConstants.gameManager.getSelected(), hsr);
+			HighScoreDialog.showHighScore(distribute, UIConstants.getGameManager().getSelected(), hsr);
 		}
 		running = false;
 	}
@@ -170,10 +189,6 @@ public class BottomControls extends HBox {
 
 	public void gameSet(Game game) {
 		complexity = game.getComplexity();
-	}
-
-	public void unpauseGame() {
-		
 	}
 
 	public void pauseGame(boolean toPause) {

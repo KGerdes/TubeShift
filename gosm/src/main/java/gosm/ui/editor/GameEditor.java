@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import gosm.backend.Game;
+import gosm.backend.StringLocalization;
 import gosm.ui.Bitmapper;
 import gosm.ui.GameImage;
 import gosm.ui.IDistribute;
@@ -43,6 +44,7 @@ import javafx.stage.Stage;
 public class GameEditor extends BorderPane {
 	
 	private IDistribute distribute;
+	private StringLocalization sl;
 	private Stage stage;
 	private Scene scene;
 	private GameImage gameImage;
@@ -51,16 +53,19 @@ public class GameEditor extends BorderPane {
 	private ComboBox<Integer> widthText;
 	private ComboBox<Integer> heightText;
 	private GridPane grid;
-	private Button   close, save;
+	private Button close;
+	private Button save;
 	private List<ImageView> dragList = new ArrayList<>();
 	
 	public GameEditor(IDistribute distribute) {
 		super();
 		this.distribute = distribute;
+		sl = UIConstants.getLocalization();
 		stage = new Stage();
+		stage.getIcons().add(distribute.getApplicationIcon());
         stage.initModality(Modality.APPLICATION_MODAL);
 		scene = new Scene(this);
-        stage.setTitle("Editor");
+        stage.setTitle(sl.getByObject(this, "Title"));
         stage.setScene(scene);
         stage.setResizable(false);
         this.setPadding(new Insets(20));
@@ -87,7 +92,7 @@ public class GameEditor extends BorderPane {
 		controls.setPadding(new Insets(0,0,0,16));
 		controls.setSpacing(12);
 		AtomicReference<TextField> ar = new AtomicReference<>();
-		VBox tmp = createText(ar, "Name", "");
+		VBox tmp = createText(ar, sl.getByObject(this, "Name"), "");
 		nameText = ar.get();
 		controls.getChildren().add(tmp);
 		ObservableList<Integer> values = FXCollections.observableArrayList();
@@ -95,7 +100,7 @@ public class GameEditor extends BorderPane {
 			values.add(i);
 		}
 		AtomicReference<ComboBox<Integer>> arcb = new AtomicReference<>();
-		tmp = createCombo(arcb, "Breite", values);
+		tmp = createCombo(arcb, sl.getByObject(this, "Width"), values);
 		widthText = arcb.get();
 		widthText.valueProperty().addListener(new ChangeListener<Object>() {
 
@@ -105,7 +110,7 @@ public class GameEditor extends BorderPane {
 			}
 		});
 		controls.getChildren().add(tmp);
-		tmp = createCombo(arcb, "Höhe", values);
+		tmp = createCombo(arcb, sl.getByObject(this, "Height"), values);
 		heightText = arcb.get();
 		heightText.valueProperty().addListener(new ChangeListener<Object>() {
 
@@ -117,7 +122,7 @@ public class GameEditor extends BorderPane {
 		controls.getChildren().add(tmp);
 		grid = new GridPane();
 		grid.setStyle("-fx-border-color: black;-fx-border-width: 1px;");
-		Bitmapper bm = UIConstants.bitmaps;
+		Bitmapper bm = UIConstants.getBitmaps();
 		List<ImageView> images = new ArrayList<>();
 		int row = 0;
 		for (int i=0;i<Bitmapper.BMP_COUNT;i++) {
@@ -180,15 +185,15 @@ public class GameEditor extends BorderPane {
 		Region r = new Region();
 		HBox btns = new HBox();
 		btns.setSpacing(12);
-		close = new Button("Schließen");
+		close = new Button(sl.getByObject(this,"Close"));
 		close.setOnMouseClicked(e -> { 
 			closeEditor(); 
 		});
-		save  = new Button("Speichern");
+		save  = new Button(sl.getByObject(this, "Save"));
 		save.setOnMouseClicked(e -> {
-			Game g = UIConstants.gameManager.getGameByUUID(gameImage.getGame().getKey());
+			Game g = UIConstants.getGameManager().getGameByUUID(gameImage.getGame().getKey());
 			if (g != null && g.hasHighscore()) {
-				Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Dieses Spielbrett beinhaltet einen Highscore. Dieser wird beim Speichern gelöscht! Ist das ok?", ButtonType.OK, ButtonType.CANCEL);
+				Alert a = new Alert(Alert.AlertType.CONFIRMATION, sl.getByObject(this, "MsgHasRanking"), ButtonType.OK, ButtonType.CANCEL);
 				a.setHeaderText(null);
 				Optional<ButtonType> obt = a.showAndWait();
 				if (obt.isPresent() && obt.get() == ButtonType.OK) {
@@ -208,7 +213,7 @@ public class GameEditor extends BorderPane {
 	
 	private void storeGame() {
 		gameImage.getGame().setName(nameText.getText());
-		UIConstants.gameManager.saveGame(gameImage.getGame());
+		UIConstants.getGameManager().saveGame(gameImage.getGame());
 		distribute.gameChanged(gameImage.getGame());
 		closeEditor();
 	}
