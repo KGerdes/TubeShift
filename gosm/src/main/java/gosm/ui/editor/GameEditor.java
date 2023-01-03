@@ -127,8 +127,8 @@ public class GameEditor extends BorderPane {
 		int row = 0;
 		for (int i=0;i<Bitmapper.BMP_COUNT;i++) {
 			images.add(new ImageView(bm.getImage(i)));
-			if (images.size() == 4) {
-				grid.addRow(row, images.get(0),images.get(1),images.get(2),images.get(3));
+			if (images.size() == 5) {
+				grid.addRow(row, images.get(0),images.get(1),images.get(2),images.get(3), images.get(4));
 				row++;
 				dragList.addAll(images);
 				images.clear();

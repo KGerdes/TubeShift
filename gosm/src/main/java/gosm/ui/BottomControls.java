@@ -34,6 +34,7 @@ public class BottomControls extends HBox {
 	private Label lblCompl;
 	private Button hscoreBtn;
 	private Button settingsBtn;
+	private Button infoBtn;
 	private InfoBox<TextField> ib;
 	private InfoBox<Label> ibSteps;
 	private InfoBox<Label> ibTime;
@@ -94,8 +95,10 @@ public class BottomControls extends HBox {
 		settingsBtn.setOnMouseClicked(e -> 
 			SettingsDialog.showSettings(distribute)
 		);
+		infoBtn = UIConstants.createIconButton("info", sl.getByObject(this, "Info")); 
+		
 		localize();
-		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn);
+		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn, infoBtn);
 		initTimer();
 		
 	}

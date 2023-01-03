@@ -47,6 +47,11 @@ public class GameGrid extends Pane {
 		paused.setTextFill(UIConstants.getBitmaps().getTubes());
 		editable.getChildren().add(paused);
 		activateGame(UIConstants.getGameManager().getSelected(), false);
+		localize();
+	}
+	
+	public void localize() {
+		paused.setText(UIConstants.getLocalization().getByObject(this, "Paused"));	
 	}
 
 	public void activateGame(Game selected, boolean mixit) {
@@ -64,7 +69,7 @@ public class GameGrid extends Pane {
 		paused.setMinHeight(editable.getHeight());
 		paused.setMaxWidth(editable.getWidth());
 		paused.setMaxHeight(editable.getHeight());
-		double width = Math.max(fixed.getWidth() + fixed.getLayoutX() + IMAGE_OFFSET, 884.0);
+		double width = Math.max(fixed.getWidth() + fixed.getLayoutX() + IMAGE_OFFSET, 1000.0);
 		setWidth(width);
 		setHeight(editable.getHeight() + IMAGE_OFFSET * 2 + 40);
 		paintButtons();

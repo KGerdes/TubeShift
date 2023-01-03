@@ -58,14 +58,7 @@ public class SettingsDialog extends VBox {
 	
 	public SettingsDialog(IDistribute distribute) {
 		super();
-		int[][] data = new int[4][6];
-		localGame = new Game("",6,4, data);
-		int index = 0;
-		for (int x=0;x<6;x++) {
-			for (int y=0;y<4;y++) {
-				localGame.setData(x, y, index++);
-			}
-		}
+		localGame = createLocalGame();
 		this.distribute = distribute;
 		sl = UIConstants.getLocalization();
 		
@@ -83,6 +76,19 @@ public class SettingsDialog extends VBox {
         initialized = true;
 	}
 	
+	private Game createLocalGame() {
+		int[][] data = new int[4][4];
+		Game g = new Game("",4,4, data);
+		int[] v = {6,5,5,3, 10,19,17,10, 10,18,16,10, 12,5,5,9 };
+		int index = 0;
+		for (int x=0;x<4;x++) {
+			for (int y=0;y<4;y++) {
+				g.setData(x, y, v[index++]);
+			}
+		}
+		return g;
+	}
+	
 	private void createInterieur() {
 		localBmp = new Bitmapper(UIConstants.getBitmaps().getBackground(),
 				UIConstants.getBitmaps().getTubes(),
@@ -98,23 +104,24 @@ public class SettingsDialog extends VBox {
 		tmp.setSpacing(40);
 		tmp.setAlignment(Pos.BASELINE_CENTER);
 		defBtn = new Button("Systemfarben");
-		defBtn.setOnMouseClicked(e -> {
-			recycle(DEFAULT_BACKGROUND_COLOR, DEFAULT_TUBES_COLOR, DEFAULT_FRAME_COLOR, DEFAULT_FRAME2_COLOR);
-		});
+		defBtn.setOnMouseClicked(e -> 
+			recycle(DEFAULT_BACKGROUND_COLOR, DEFAULT_TUBES_COLOR, DEFAULT_FRAME_COLOR, DEFAULT_FRAME2_COLOR)
+		);
 		defBtn.setMinWidth(COL_BTN_WIDTH);
 		undoBtn = new Button("Eingangsfarben");
-		undoBtn.setOnMouseClicked(e -> {
+		undoBtn.setOnMouseClicked(e -> 
 			recycle(UIConstants.getBitmaps().getBackground(),
 					UIConstants.getBitmaps().getTubes(),
 					UIConstants.getBitmaps().getFrame(),
-					UIConstants.getBitmaps().getFrame2());
-		});
+					UIConstants.getBitmaps().getFrame2())
+		);
 		undoBtn.setMinWidth(COL_BTN_WIDTH);
 		Region r = new Region();
 		tmp.getChildren().addAll(defBtn, r, undoBtn);
 		HBox.setHgrow(r, Priority.ALWAYS);
 		this.getChildren().add(tmp);
 		HBox store = new HBox();
+		store.setSpacing(12);		
 		lblColBackground = new Label();
 		colBackground = createCP(store, lblColBackground, "Hintergrundfarbe");
 		r = new Region();
@@ -124,6 +131,7 @@ public class SettingsDialog extends VBox {
 		colTubes = createCP(store, lblColTubes, "Rohrfarbe");
 		this.getChildren().add(store);
 		store = new HBox();
+		store.setSpacing(12);
 		lblColBorder1 = new Label();
 		colBorder1 = createCP(store, lblColBorder1, "Rahmenfarbe I");
 		r = new Region();
@@ -141,9 +149,9 @@ public class SettingsDialog extends VBox {
 		HBox hbox = new HBox();
 		close = new Button("Schließen");
 		close.setMinWidth(COL_BTN_WIDTH);
-		close.setOnMouseClicked(e -> {
-			stage.close();
-		});
+		close.setOnMouseClicked(e -> 
+			stage.close()
+		);
 		saveAndClose = new Button("Speichern");
 		saveAndClose.setDefaultButton(true);
 		saveAndClose.setMinWidth(COL_BTN_WIDTH);
@@ -189,9 +197,9 @@ public class SettingsDialog extends VBox {
 		VBox vb = new VBox();
 		vb.setSpacing(4);
 		final ColorPicker cp = new ColorPicker();
-		cp.valueProperty().addListener(e -> {
-			redrawColorChanges();
-		});
+		cp.valueProperty().addListener(e -> 
+			redrawColorChanges()
+		);
 		lbl.setText(title);
 		vb.getChildren().addAll(lbl, cp);
 		hbox.getChildren().add(vb);

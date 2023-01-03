@@ -223,6 +223,16 @@ public class Game {
 		}
 		return new Game(key,name,width,height,empty,tdata);
 	}
+	
+	public Game duplicateWithNewKey() {
+		int[][] tdata = new int[height][width];
+		for (int x=0;x<width;x++) {
+			for (int y=0;y<height;y++) {
+				tdata[y][x] = data[y][x];
+			}
+		}
+		return new Game(UUID.randomUUID().toString(),name,width,height,empty,tdata);
+	}
 
 	public long getComplexity() {
 		Map<Integer, Integer> tst = new HashMap<>();

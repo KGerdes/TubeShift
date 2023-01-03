@@ -26,7 +26,9 @@ public class MenuPane extends HBox {
 	private Button stop;
 	private Button pause;
 	private Button newGame;
+	private Button copyGame;
 	private Button editGame;
+	private Button deleteGame;
 	private GameEditor editor;
 	
 	public MenuPane(IDistribute distribute) {
@@ -57,6 +59,16 @@ public class MenuPane extends HBox {
 			}
 			editor.createNewGame();
 		});
+		copyGame = UIConstants.createIconButton("copy", sl.getByObject(this, "CopyBoard"));
+		copyGame.setAlignment(Pos.CENTER_RIGHT);
+		copyGame.setOnMouseClicked(e -> {
+			if (editor == null) {
+				editor = new GameEditor(distribute);
+			}
+			Game g = UIConstants.getGameManager().getSelected().duplicateWithNewKey();
+			g.setName(g.getName() + " " + sl.getByObject(this, "CopyNameExt"));
+			editor.editGame(g);
+		});
 		editGame = UIConstants.createIconButton("draw", sl.getByObject(this, "EditBoard"));
 		editGame.setAlignment(Pos.CENTER_RIGHT);
 		editGame.setOnMouseClicked(e -> {
@@ -64,6 +76,11 @@ public class MenuPane extends HBox {
 				editor = new GameEditor(distribute);
 			}
 			editor.editGame(UIConstants.getGameManager().getSelected());
+		});
+		deleteGame = UIConstants.createIconButton("delete", sl.getByObject(this, "DeleteBoard"));
+		deleteGame.setAlignment(Pos.CENTER_RIGHT);
+		deleteGame.setOnMouseClicked(e -> {
+			
 		});
 		Region r2 = new Region();
 		r2.setMinWidth(30);
@@ -85,7 +102,7 @@ public class MenuPane extends HBox {
 			}
 		});
 		HBox.setHgrow(r, Priority.ALWAYS);
-		this.getChildren().addAll(gameSelect, r2, start, pause, stop, r, newGame, editGame);
+		this.getChildren().addAll(gameSelect, r2, start, pause, stop, r, newGame, copyGame, deleteGame, editGame);
 		setRunningState(GameState.OFFLINE);
 		localize();
 	}
@@ -96,6 +113,7 @@ public class MenuPane extends HBox {
 		pause.setTooltip(new Tooltip(sl.getByObject(this, "Pause")));
 		stop.setTooltip(new Tooltip(sl.getByObject(this, "Stop")));
 		newGame.setTooltip(new Tooltip(sl.getByObject(this, "NewBoard")));
+		editGame.setTooltip(new Tooltip(sl.getByObject(this, "CopyBoard")));
 		editGame.setTooltip(new Tooltip(sl.getByObject(this, "EditBoard")));
 	}
 

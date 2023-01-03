@@ -66,20 +66,24 @@ public class StringLocalization {
 			if (tmp != selmap) {
 				for (String key : tmp.keySet()) {
 					int index = key.indexOf('.');
-					if (index >= 0) {
-						String sh = key.substring(index);
-						boolean found = false;
-						for (String key2 : selmap.keySet()) {
-							if (key2.endsWith(sh)) {
-								found = true;
-								break;
-							}
-						}
-						if (!found) {
-							throw new TubeShiftException("Key nicht gefunden: " + key);
-						}
-					}
+					findCorrespondingKey(key, index);
 				}
+			}
+		}
+	}
+	
+	private void findCorrespondingKey(String key, int index) {
+		if (index >= 0) {
+			String sh = key.substring(index);
+			boolean found = false;
+			for (String key2 : selmap.keySet()) {
+				if (key2.endsWith(sh)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				throw new TubeShiftException("Key nicht gefunden: " + key);
 			}
 		}
 	}

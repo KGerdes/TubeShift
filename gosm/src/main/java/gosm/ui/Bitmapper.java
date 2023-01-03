@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 
 public class Bitmapper {
 	
-	public static final int BMP_COUNT = 24;
+	public static final int BMP_COUNT = 25;
 	
 	public static final int BMP_WIDTH = 70;
 	public static final int TUBE_RADIUS = 12;
@@ -151,12 +151,20 @@ public class Bitmapper {
 			// images made of rectangles
 			basicImages(index, gc, halfmin);
 		} else {
-			// images made of circles
-			circleImages(index, gc);
+			if (index < 24) {
+				circleImages(index, gc);
+			} else {
+				
+				gc.fillOval(BMP_WIDTH / 2.0 - halfmin, BMP_WIDTH / 2.0 - halfmin, halfmin * 2.0, halfmin * 2.0);
+				gc.setStroke(inverseFrame);
+				gc.strokeOval(BMP_WIDTH / 2.0 - halfmin + 3, BMP_WIDTH / 2.0 - halfmin + 3, halfmin * 2.0 - 6, halfmin * 2.0 - 6);
+			}
 		}
-		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);
 		gc.setStroke(inverseFrame);
-		gc.strokeRect(2, 2, BMP_WIDTH - 6.0, BMP_WIDTH - 6.0);
+		gc.strokeRect(2, 2, BMP_WIDTH - 5.0, BMP_WIDTH - 6.0);
+		gc.setStroke(frame);
+		gc.strokeRect(0, 0, BMP_WIDTH, BMP_WIDTH);
+		
 		canvas.snapshot(null, wi);
 		return wi;
 	}
