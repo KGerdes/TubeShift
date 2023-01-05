@@ -137,4 +137,8 @@ public class StringLocalization {
 		}
 		throw new TubeShiftException("key " + postfix + " not found for locale " + selected.toString());
 	}
+
+	public Locale getSelected() {
+		return selected;
+	}
 }

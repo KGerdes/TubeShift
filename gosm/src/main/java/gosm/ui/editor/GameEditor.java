@@ -24,13 +24,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -56,6 +54,7 @@ public class GameEditor extends BorderPane {
 	private Button close;
 	private Button save;
 	private List<ImageView> dragList = new ArrayList<>();
+	private boolean relevantDataChanged;
 	
 	public GameEditor(IDistribute distribute) {
 		super();
@@ -94,7 +93,12 @@ public class GameEditor extends BorderPane {
 		AtomicReference<TextField> ar = new AtomicReference<>();
 		VBox tmp = createText(ar, sl.getByObject(this, "Name"), "");
 		nameText = ar.get();
+		nameText.textProperty().addListener(e -> {
+			save.setDisable(false);
+			gameImage.getGame().setName(nameText.getText());
+		});
 		controls.getChildren().add(tmp);
+		HBox htmp = new HBox();
 		ObservableList<Integer> values = FXCollections.observableArrayList();
 		for (int i=Game.MIN_WIDTH;i<=Game.MAX_WIDTH;i++) {
 			values.add(i);
@@ -107,9 +111,10 @@ public class GameEditor extends BorderPane {
 			@Override
 			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedInt) {
 				resizeEditGame((Integer)selectedInt, gameImage.getGame().getHeight());
+				dataWasChanged(true);
 			}
 		});
-		controls.getChildren().add(tmp);
+		htmp.getChildren().add(tmp);
 		tmp = createCombo(arcb, sl.getByObject(this, "Height"), values);
 		heightText = arcb.get();
 		heightText.valueProperty().addListener(new ChangeListener<Object>() {
@@ -117,9 +122,13 @@ public class GameEditor extends BorderPane {
 			@Override
 			public void changed(ObservableValue<? extends Object> arg0, Object arg1, Object selectedInt) {
 				resizeEditGame(gameImage.getGame().getWidth(), (Integer)selectedInt);
+				dataWasChanged(true);
 			}
 		});
-		controls.getChildren().add(tmp);
+		Region rt = new Region();
+		htmp.getChildren().addAll(rt,tmp);
+		HBox.setHgrow(rt, Priority.ALWAYS);
+		controls.getChildren().add(htmp);
 		grid = new GridPane();
 		grid.setStyle("-fx-border-color: black;-fx-border-width: 1px;");
 		Bitmapper bm = UIConstants.getBitmaps();
@@ -139,7 +148,7 @@ public class GameEditor extends BorderPane {
 			iv.setOnDragDetected(e -> {
 				Dragboard db = iv.startDragAndDrop(TransferMode.ANY);
 				ClipboardContent content = new ClipboardContent();
-		        content.putString(String.valueOf("ImageIndex=" + String.valueOf(ai.get())));
+		        content.putString(String.valueOf("ImageIndex=") + String.valueOf(ai.get()));
 		        db.setContent(content);
 		        e.consume();
 		        ai.incrementAndGet();
@@ -192,7 +201,7 @@ public class GameEditor extends BorderPane {
 		save  = new Button(sl.getByObject(this, "Save"));
 		save.setOnMouseClicked(e -> {
 			Game g = UIConstants.getGameManager().getGameByUUID(gameImage.getGame().getKey());
-			if (g != null && g.hasHighscore()) {
+			if (g != null && relevantDataChanged && g.hasHighscore()) {
 				Alert a = new Alert(Alert.AlertType.CONFIRMATION, sl.getByObject(this, "MsgHasRanking"), ButtonType.OK, ButtonType.CANCEL);
 				a.setHeaderText(null);
 				Optional<ButtonType> obt = a.showAndWait();
@@ -203,6 +212,8 @@ public class GameEditor extends BorderPane {
 				storeGame();
 			}
 		});
+		save.setMinWidth(100);
+		close.setMinWidth(100);
 		btns.getChildren().addAll(close, save);
 		controls.getChildren().add(r);
 		controls.getChildren().add(btns);
@@ -212,9 +223,13 @@ public class GameEditor extends BorderPane {
 	}
 	
 	private void storeGame() {
-		gameImage.getGame().setName(nameText.getText());
-		UIConstants.getGameManager().saveGame(gameImage.getGame());
-		distribute.gameChanged(gameImage.getGame());
+		if (relevantDataChanged) {
+			gameImage.getGame().setName(nameText.getText());
+			UIConstants.getGameManager().saveGame(gameImage.getGame());
+			distribute.gameChanged(gameImage.getGame());
+		} else {
+			UIConstants.getGameManager().changeGameName(gameImage.getGame().getKey(), gameImage.getGame().getName());
+		}
 		closeEditor();
 	}
 	
@@ -236,12 +251,18 @@ public class GameEditor extends BorderPane {
 	}
 
 	private void handleDrop(double sceneX, double sceneY, int index) {
+		dataWasChanged(true);
 		int col = (int)(sceneX - gameImage.getLayoutX()) / Bitmapper.BMP_WIDTH;
 		int row = (int)(sceneY - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
 		gameImage.getGame().setData(col, row, index);
 		gameImage.drawGame();
 	}
 	
+	private void dataWasChanged(boolean activate) {
+		relevantDataChanged = activate;
+		save.setDisable(!activate);
+	}
+
 	private int getBitmapOfGame(double sceneX, double sceneY) {
 		int col = (int)(sceneX - gameImage.getLayoutX()) / Bitmapper.BMP_WIDTH;
 		int row = (int)(sceneY - gameImage.getLayoutY()) / Bitmapper.BMP_WIDTH;
@@ -266,9 +287,11 @@ public class GameEditor extends BorderPane {
 	}
 	
 	private void setAttribs() {
+		relevantDataChanged = false;
 		nameText.setText(gameImage.getGame().getName());
 		widthText.setValue(gameImage.getGame().getWidth());
 		heightText.setValue(gameImage.getGame().getHeight());
+		dataWasChanged(false);
 	}
 
 	public GameEditor createNewGame() {

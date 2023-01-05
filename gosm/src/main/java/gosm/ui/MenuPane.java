@@ -3,6 +3,7 @@ package gosm.ui;
 import gosm.backend.Game;
 import gosm.backend.GameState;
 import gosm.backend.StringLocalization;
+import gosm.ui.delete.DeleteDialog;
 import gosm.ui.editor.GameEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -80,7 +81,7 @@ public class MenuPane extends HBox {
 		deleteGame = UIConstants.createIconButton("delete", sl.getByObject(this, "DeleteBoard"));
 		deleteGame.setAlignment(Pos.CENTER_RIGHT);
 		deleteGame.setOnMouseClicked(e -> {
-			
+			DeleteDialog.showInfoDialog(distribute, UIConstants.getGameManager().getSelected());
 		});
 		Region r2 = new Region();
 		r2.setMinWidth(30);

@@ -39,4 +39,6 @@ public interface IDistribute {
 	public void changeImageColors(Color background, Color tubes, Color frame, Color frame2);
 
 	public Image getApplicationIcon();
+
+	public void gameDeleted();
 }

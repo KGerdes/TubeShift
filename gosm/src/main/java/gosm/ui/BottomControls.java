@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import gosm.backend.Game;
 import gosm.backend.HighScoreEntry;
 import gosm.backend.StringLocalization;
+import gosm.ui.info.InfoDialog;
 import gosm.ui.score.HighScoreDialog;
 import gosm.ui.settings.SettingsDialog;
 import javafx.application.Platform;
@@ -96,7 +97,7 @@ public class BottomControls extends HBox {
 			SettingsDialog.showSettings(distribute)
 		);
 		infoBtn = UIConstants.createIconButton("info", sl.getByObject(this, "Info")); 
-		
+		infoBtn.setOnMouseClicked(e -> InfoDialog.showInfoDialog(distribute).show());
 		localize();
 		getChildren().addAll(ib, ibSteps, ibTime, ibPoints, ibRank, ibComplex, reg, hscoreBtn, settingsBtn, infoBtn);
 		initTimer();
@@ -192,6 +193,9 @@ public class BottomControls extends HBox {
 
 	public void gameSet(Game game) {
 		complexity = game.getComplexity();
+		lblTime.setText(TIME_FORMAT);
+		lblPoints.setText(ZERO_PTS);
+		lblSteps.setText(ZERO_PTS);
 	}
 
 	public void pauseGame(boolean toPause) {

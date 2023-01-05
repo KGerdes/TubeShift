@@ -39,6 +39,7 @@ public class TubeShift extends Application implements IDistribute {
 				, Locale.UK
 				, Locale.GERMANY
 				);
+		Locale.setDefault(UIConstants.getLocalization().getSelected());
 		UIConstants.initGameManager(this);
 		initWorkingDir(systemArgs);
 		initBitmaps();
@@ -261,15 +262,26 @@ public class TubeShift extends Application implements IDistribute {
 		return gameGrid.getSelectedGame();
 	}
 
-	public static void main(String[] args) {
-    	systemArgs = args;
-        launch();
-    }
-
+	
 	@Override
 	public Image getApplicationIcon() {
 		return new Image(this.getClass().getClassLoader().getResourceAsStream("icons/applicationicon.png"));
 	}
 
+	@Override
+	public void gameDeleted() {
+		if (UIConstants.getGameManager().getSelected() != null) {
+			startNewGame(UIConstants.getGameManager().getSelected());
+		} else {
+			
+		}
+	}
+
+	public static void main(String[] args) {
+    	systemArgs = args;
+        launch();
+    }
+
+	
 
 }

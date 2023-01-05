@@ -2,16 +2,13 @@ package gosm.backend;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import gosm.ui.IDistribute;
@@ -19,6 +16,8 @@ import gosm.ui.IDistribute;
 public class GameManager {
 
 	
+	private static final String GAME_FILE_EXTENSION = ".game";
+
 	private static final String DATA = "data";
 
 	private static final String HEIGHT = "height";
@@ -101,14 +100,14 @@ public class GameManager {
 
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.toLowerCase().endsWith(".game");
+				return name.toLowerCase().endsWith(GAME_FILE_EXTENSION);
 			}
 			
 		});
 		for (String fname : files) {
 			Properties p = new Properties();
-			try {
-				p.load(new FileInputStream(distribute.getWorkingFile(fname)));
+			try (InputStream is = new FileInputStream(distribute.getWorkingFile(fname))) {
+				p.load(is);
 				Game g = loadFromProps(p);
 				updateGameInCache(g);
 			} catch (Exception e) {
@@ -149,11 +148,23 @@ public class GameManager {
 	public void updateGameInCache(Game game) {
 		games.put(game.getKey(), game);
 	}
+	
+	public void changeGameName(String uuid, String newName) {
+		Game g = getGameByUUID(uuid);
+		if (g != null) {
+			g.setName(newName);
+			writeGameToDisk(g);
+		}
+	}
 
 	public void saveGame(Game game) {
 		updateGameInCache(game);
-		StringBuffer sb = saveString(game);
-		String fname = distribute.getWorkingFile(game.getKey() + ".game");
+		writeGameToDisk(game);
+	}
+	
+	private void writeGameToDisk(Game game) {
+		StringBuilder sb = saveString(game);
+		String fname = distribute.getWorkingFile(game.getKey() + GAME_FILE_EXTENSION);
 		File f = new File(fname);
 		try {
 			FileOutputStream fos = new FileOutputStream(f);
@@ -164,8 +175,8 @@ public class GameManager {
 		}
 	}
 	
-	private StringBuffer saveString(Game game) {
-		StringBuffer sb = new StringBuffer();
+	private StringBuilder saveString(Game game) {
+		StringBuilder sb = new StringBuilder();
 		sb.append(UUID).append("=").append(game.getKey()).append(CRLF);
 		sb.append(NAME).append("=").append(game.getName()).append(CRLF);
 		sb.append(WIDTH).append("=").append(game.getWidth()).append(CRLF);
@@ -180,7 +191,7 @@ public class GameManager {
 	}
 	
 	private String dataStr(Game game) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int col=0;col<game.getWidth();col++) {
 			for (int row=0;row<game.getHeight();row++) {
 				sb.append((col > 0 || row > 0) ? "," : "").append(game.getData(col, row));
@@ -191,5 +202,33 @@ public class GameManager {
 
 	public Game getGameByUUID(String guuid) {
 		return games.get(guuid);
+	}
+
+	public boolean checkRankingByUUID(String key) {
+		Game g = getGameByUUID(key);
+		if (g != null) {
+			return g.hasHighscore();
+		}
+		return false;
+	}
+
+	public boolean deleteGame(Game game) {
+		boolean res = false;
+		if (games.containsKey(game.getKey())) {
+			String fname = distribute.getWorkingFile(game.getKey() + GAME_FILE_EXTENSION);
+			File f = new File(fname);
+			res = f.delete();
+			if (res) {
+				games.remove(game.getKey());
+				if (selected.getKey().equals(game.getKey())) {
+					selected = null;
+					for (Game g : games.values()) {
+						selected = g;
+						break;
+					}
+				}
+			}
+		}
+		return res;
 	}
 }
