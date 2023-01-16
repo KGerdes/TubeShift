@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import gosm.backend.Game;
 import gosm.backend.GameState;
+import gosm.backend.StringLocalization;
 import gosm.backend.TubeShiftException;
 import gosm.ui.settings.SettingsDialog;
 import javafx.application.Application;
@@ -60,6 +61,7 @@ public class TubeShift extends Application implements IDistribute {
         stage.setOnCloseRequest(event -> 
             controls.closeApplication()
         );
+        setSettingsLocale(getSettingsLocale());
         stage.show();
         menu.showPropGame();
     }
@@ -240,6 +242,7 @@ public class TubeShift extends Application implements IDistribute {
 		if (propFile.exists()) {
 			try (FileInputStream fis = new FileInputStream(propFile)){
 				sysprops.load(fis);
+				
 			} catch (Exception e) {
 				throw new TubeShiftException(e.getMessage(), e);
 			} 
@@ -253,9 +256,13 @@ public class TubeShift extends Application implements IDistribute {
 
 	@Override
 	public void setProp(String propname, String newValue) {
-		propsChanged = true;
+		if (newValue.equals(getProp(propname))) {
+			propsChanged = true;
+		}
 		sysprops.setProperty(propname, newValue);
 	}
+	
+	
 
 	@Override
 	public Game getGame() {
@@ -276,12 +283,29 @@ public class TubeShift extends Application implements IDistribute {
 			
 		}
 	}
+	
+	@Override
+	public Locale getSettingsLocale() {
+		return UIConstants.getLocalization().getLocaleByName(getProp("Locale"));
+	}
+
+	@Override
+	public void setSettingsLocale(Locale locale) {
+		StringLocalization sl = UIConstants.getLocalization();
+		sl.selectByName(sl.getSelectedName(locale));
+		setProp("Locale", UIConstants.getLocalization().getSelectedName());
+		gameGrid.localize();
+		menu.localize();
+		controls.localize();
+	}
+
 
 	public static void main(String[] args) {
     	systemArgs = args;
         launch();
     }
 
+	
 	
 
 }

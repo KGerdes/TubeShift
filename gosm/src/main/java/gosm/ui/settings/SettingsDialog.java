@@ -13,6 +13,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -34,6 +36,8 @@ public class SettingsDialog extends VBox {
 	private StringLocalization sl;
 	private Stage stage;
 	private Scene scene;
+	private RadioButton german;
+	private RadioButton english;
 	private Button defBtn;
 	private Button undoBtn;
 	private Button close;
@@ -146,6 +150,23 @@ public class SettingsDialog extends VBox {
 		colBorder1.setValue(localBmp.getFrame());
 		colBorder2.setValue(localBmp.getFrame2());
 		
+		HBox radios = new HBox();
+		radios.setPadding(new Insets(20,0,20,0));
+		ToggleGroup tg =  new ToggleGroup();
+		german = new RadioButton("Deutsch");
+		german.setToggleGroup(tg);
+		english = new RadioButton("English");
+		english.setToggleGroup(tg);
+		r = new Region();
+		HBox.setHgrow(r, Priority.ALWAYS);
+		radios.getChildren().addAll(german, r, english);
+		this.getChildren().add(radios);
+		
+		if (sl.getSelectedName().equals("en_GB")) {
+			english.setSelected(true);
+		} else {
+			german.setSelected(true);
+		}
 		HBox hbox = new HBox();
 		close = new Button("Schließen");
 		close.setMinWidth(COL_BTN_WIDTH);
@@ -156,6 +177,11 @@ public class SettingsDialog extends VBox {
 		saveAndClose.setDefaultButton(true);
 		saveAndClose.setMinWidth(COL_BTN_WIDTH);
 		saveAndClose.setOnMouseClicked(e -> {
+			if (english.selectedProperty().get()) {
+				distribute.setSettingsLocale(sl.getLocaleByName("en_GB"));
+			} else {
+				distribute.setSettingsLocale(sl.getLocaleByName("de_DE"));
+			}
 			distribute.changeImageColors(localBmp.getBackground(), 
 										localBmp.getTubes(), 
 										localBmp.getFrame(), 

@@ -28,7 +28,29 @@ public class StringLocalization {
 		selected = locales.get(0);
 		initMaps();
 		importConstants(strm);
-		
+	}
+	
+	private void setSelected(Locale locale) {
+		selected = locale;
+		selmap = mapOfConstants.get(selected.getLanguage());
+	}
+	
+	public boolean selectByName(String name) {
+		for (Locale l : locales) {
+			if (l.toString().equals(name)) {
+				setSelected(l);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public String getSelectedName() {
+		return selected.toString();
+	}
+	
+	public String getSelectedName(Locale l) {
+		return l.toString();
 	}
 
 	private void initMaps() {
@@ -139,6 +161,15 @@ public class StringLocalization {
 	}
 
 	public Locale getSelected() {
+		return selected;
+	}
+
+	public Locale getLocaleByName(String prop) {
+		for (Locale l : locales) {
+			if (l.toString().equals(prop)) {
+				return l;
+			}
+		}
 		return selected;
 	}
 }

@@ -1,5 +1,7 @@
 package gosm.ui;
 
+import java.util.Locale;
+
 import gosm.backend.Game;
 import gosm.backend.GameState;
 import javafx.scene.image.Image;
@@ -41,4 +43,8 @@ public interface IDistribute {
 	public Image getApplicationIcon();
 
 	public void gameDeleted();
+	
+	public Locale getSettingsLocale();
+	
+	public void setSettingsLocale(Locale locale);
 }
