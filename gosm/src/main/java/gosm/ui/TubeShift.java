@@ -20,7 +20,7 @@ import javafx.stage.Stage;
 
 public class TubeShift extends Application implements IDistribute {
 
-	private static String[] systemArgs;
+	private static String[] systemArgs; 
 	private String workingDir;
 	private Stage stage;
 	private Scene scene;
