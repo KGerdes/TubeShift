@@ -114,9 +114,11 @@ public class MenuPane extends HBox {
 		pause.setTooltip(new Tooltip(sl.getByObject(this, "Pause")));
 		stop.setTooltip(new Tooltip(sl.getByObject(this, "Stop")));
 		newGame.setTooltip(new Tooltip(sl.getByObject(this, "NewBoard")));
-		editGame.setTooltip(new Tooltip(sl.getByObject(this, "CopyBoard")));
+		copyGame.setTooltip(new Tooltip(sl.getByObject(this, "CopyBoard")));
 		editGame.setTooltip(new Tooltip(sl.getByObject(this, "EditBoard")));
+		deleteGame.setTooltip(new Tooltip(sl.getByObject(this, "DeleteBoard")));
 	}
+	
 
 	private ObservableList<Game> getGameList() {
 		ObservableList<Game> ol = FXCollections.observableArrayList();
